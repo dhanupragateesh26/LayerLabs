@@ -6,7 +6,7 @@ const cors = require('cors');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const { Readable } = require('stream');
-const { GridFSBucket, ObjectId } = require("mongodb");
+const { ObjectId } = require("mongodb");
 const Order = require('./models/Order');
 
 const app = express();
