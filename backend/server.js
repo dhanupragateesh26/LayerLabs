@@ -6,8 +6,7 @@ const cors = require('cors');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const { Readable } = require('stream');
-import { GridFSBucket, ObjectId } from "mongodb";
-
+const { GridFSBucket, ObjectId } = require("mongodb");
 const Order = require('./models/Order');
 
 const app = express();
@@ -233,6 +232,24 @@ app.get('/api/orders/:id/file', async (req, res) => {
   } catch (error) {
     console.error('File download error:', error);
     res.status(500).json({ error: 'Failed to retrieve file.' });
+  }
+});
+//download stl
+app.get("/api/download/:id", async (req, res) => {
+  try {
+    const fileId = new ObjectId(req.params.id);
+
+    const bucket = new GridFSBucket(mongoose.connection.db);
+
+    const downloadStream = bucket.openDownloadStream(fileId);
+
+    res.set("Content-Disposition", "attachment; filename=file.stl");
+    res.set("Content-Type", "application/octet-stream");
+
+    downloadStream.pipe(res);
+
+  } catch (err) {
+    res.status(500).send("Download failed");
   }
 });
 
