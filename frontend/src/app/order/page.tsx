@@ -164,9 +164,11 @@ export default function OrderPage() {
       }
     } catch (err: any) {
       console.error(err);
-      setSubmitError(err.message === 'API URL not configured. Please set NEXT_PUBLIC_API_URL in your environment.'
-        ? err.message
-        : 'Cannot connect to the backend server. Please check your internet connection or try again later.');
+      // setSubmitError(err.message === 'API URL not configured. Please set NEXT_PUBLIC_API_URL in your environment.'
+      //   ? err.message
+      //   : 'Cannot connect to the backend server. Please check your internet connection or try again later.');
+      console.error("REAL ERROR:", err);
+      setSubmitError(err.message || "Unknown error");
     } finally {
       setIsUploading(false);
       setTimeout(() => setUploadProgress(0), 1000);
