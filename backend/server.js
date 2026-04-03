@@ -69,14 +69,27 @@ function initEmailTransporter() {
     return;
   }
   emailTransporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
   });
-  console.log('✅  Email transporter ready');
+
+  emailTransporter.verify((error, success) => {
+    if (error) {
+      console.error('❌  Email transporter configuration error:', error);
+    } else {
+      console.log('✅  Email transporter ready and verified');
+    }
+  });
 }
 
 async function sendOrderConfirmationEmail(order) {
   if (!emailTransporter) return;
+
+  const orderDate = new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
+  const backendUrl = process.env.BACKEND_URL || 'https://layerlabs-backend.onrender.com'; // Change this if your render URL is different
+  const downloadUrl = `${backendUrl}/api/orders/${order._id}/file`;
 
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#09090b;color:#e5e7eb;padding:32px;border-radius:12px;border:1px solid #27272a;">
@@ -102,9 +115,15 @@ async function sendOrderConfirmationEmail(order) {
           <tr><td style="color:#6b7280;padding:5px 0;">Infill Density</td><td style="color:#e5e7eb;">${order.infillDensity}</td></tr>
           <tr><td style="color:#6b7280;padding:5px 0;">Infill Pattern</td><td style="color:#e5e7eb;">${order.infillPattern}</td></tr>
           <tr><td style="color:#6b7280;padding:5px 0;">Quantity</td><td style="color:#e5e7eb;">${order.quantity}</td></tr>
+          <tr><td style="color:#6b7280;padding:5px 0;">Date Submitted</td><td style="color:#e5e7eb;">${orderDate}</td></tr>
           <tr><td style="color:#6b7280;padding:5px 0;">Delivery Address</td><td style="color:#e5e7eb;">${order.address}</td></tr>
           ${order.comments ? `<tr><td style="color:#6b7280;padding:5px 0;">Special Requests</td><td style="color:#e5e7eb;">${order.comments}</td></tr>` : ''}
         </table>
+
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #27272a;">
+          <p style="color:#a855f7;margin:0 0 5px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;">File Access</p>
+          <a href="${downloadUrl}" style="color:#60a5fa;text-decoration:none;font-size:13px;">⬇️ Click here to download the .STL file</a>
+        </div>
       </div>
 
       <div style="background:#1a0f2e;border:1px solid #a855f730;border-radius:8px;padding:14px 18px;margin-bottom:20px;">
