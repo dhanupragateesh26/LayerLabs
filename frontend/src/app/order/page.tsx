@@ -133,7 +133,7 @@ export default function OrderPage() {
         setUploadProgress((prev) => (prev < 90 ? prev + 10 : prev));
       }, 200);
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       const res = await fetch(`${apiUrl}/api/orders`, {
         method: 'POST',
         body: data,
