@@ -88,7 +88,8 @@ async function sendOrderConfirmationEmail(order, req) {
   if (!emailTransporter) return;
 
   const orderDate = new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
-  const backendUrl = req ? `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get('host')}` : (process.env.BACKEND_URL || 'https://layerlabs.onrender.com');
+  // const backendUrl = req ? `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get('host')}` : (process.env.BACKEND_URL || 'https://layerlabs.onrender.com');
+  const backendUrl = process.env.BACKEND_URL;
   const downloadUrl = `${backendUrl}/api/orders/${order._id}/file`;
 
   const html = `
