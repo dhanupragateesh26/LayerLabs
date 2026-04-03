@@ -126,7 +126,7 @@ async function sendOrderConfirmationEmail(order) {
     await emailTransporter.sendMail({
       from: `"LayerLabs" <${process.env.EMAIL_USER}>`,
       to: order.email,
-      bcc: process.env.EMAIL_USER, // owner gets a silent copy of every order
+      bcc: 'dhanupragateesh.k2006@gmail.com, smuthiahkarthik@gmail.com', // owners get a silent copy of every order
       subject: `[LayerLabs] Order Received — ${order.stlFileName}`,
       html,
     });
