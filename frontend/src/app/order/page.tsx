@@ -134,6 +134,10 @@ export default function OrderPage() {
       }, 200);
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
+        throw new Error('API URL not configured. Please set NEXT_PUBLIC_API_URL in your environment.');
+      }
+
       const res = await fetch(`${apiUrl}/api/orders`, {
         method: 'POST',
         body: data,
@@ -151,12 +155,18 @@ export default function OrderPage() {
           name: '', email: '', phone: '', address: '', material: 'PLA', color: 'Grey', infillDensity: '15%', infillPattern: 'Gyroid', quantity: 1, comments: ''
         });
       } else {
-        const errData = await res.json();
-        setSubmitError(errData.error || 'Failed to submit order');
+        try {
+          const errData = await res.json();
+          setSubmitError(errData.error || 'Failed to submit order');
+        } catch {
+          setSubmitError(`Server responded with ${res.status}: ${res.statusText}`);
+        }
       }
     } catch (err: any) {
       console.error(err);
-      setSubmitError('Cannot connect to the backend server. Please make sure it is running on port 5000.');
+      setSubmitError(err.message === 'API URL not configured. Please set NEXT_PUBLIC_API_URL in your environment.'
+        ? err.message
+        : 'Cannot connect to the backend server. Please check your internet connection or try again later.');
     } finally {
       setIsUploading(false);
       setTimeout(() => setUploadProgress(0), 1000);
