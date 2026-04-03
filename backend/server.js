@@ -84,11 +84,11 @@ function initEmailTransporter() {
   });
 }
 
-async function sendOrderConfirmationEmail(order) {
+async function sendOrderConfirmationEmail(order, req) {
   if (!emailTransporter) return;
 
   const orderDate = new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
-  const backendUrl = process.env.BACKEND_URL || 'https://layerlabs-backend.onrender.com'; // Change this if your render URL is different
+  const backendUrl = req ? `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get('host')}` : (process.env.BACKEND_URL || 'https://layerlabs.onrender.com');
   const downloadUrl = `${backendUrl}/api/orders/${order._id}/file`;
 
   const html = `
@@ -225,7 +225,7 @@ app.post('/api/orders', upload.single('stlFile'), async (req, res) => {
     await newOrder.save();
 
     // Fire-and-forget — email should never block the API response
-    sendOrderConfirmationEmail(newOrder);
+    sendOrderConfirmationEmail(newOrder, req);
 
     res.status(201).json({
       message: 'Thank you! Your request has been received. You will be contacted soon.',
