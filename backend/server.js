@@ -72,8 +72,12 @@ function initEmailTransporter() {
     host: 'smtp.gmail.com',
     port: 587,          // 465 is blocked on Render free plan; 587 (STARTTLS) is allowed
     secure: false,      // false = STARTTLS upgrade after connection
+    family: 4, // ✅ FORCE IPv4
     requireTLS: true,   // enforce TLS — never send plaintext
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    },
   });
 
   emailTransporter.verify((error, success) => {
