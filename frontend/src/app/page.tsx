@@ -127,8 +127,11 @@ export default function Home() {
               <p className="text-gray-400 text-sm mb-6 h-16">Durable, strong layer adhesion. Great for mechanical parts.</p>
             </motion.div>
 
-            <motion.div variants={fadeUp} className="card bg-gray-950/80 p-8 border-purple-500/20 hover:border-purple-500 transition-colors">
-              <h3 className="text-2xl font-bold mb-2 text-white">TPU</h3>
+            {/* </motion.div> <motion.div variants={fadeUp} className="card bg-gray-950/80 p-8 border-purple-500/20 hover:border-purple-500 transition-colors"> */}
+            <motion.div variants={fadeUp} className="card bg-gray-950/40 p-8 opacity-60 grayscale border-gray-800">
+              <div className="flex justify-center mb-1">
+                <span className="text-xs font-bold uppercase tracking-wider bg-gray-900 text-gray-300 px-3 py-1 rounded-full border border-gray-800">Coming Soon</span>
+              </div><h3 className="text-2xl font-bold mb-2 text-gray-400 mt-2">TPU</h3>
               <p className="text-purple-400 font-semibold text-xl mb-4">₹5 <span className="text-sm font-normal text-gray-500">/ gram</span></p>
               <p className="text-gray-400 text-sm mb-6 h-16">Flexible, rubber-like material perfect for wearables and seals.</p>
             </motion.div>
