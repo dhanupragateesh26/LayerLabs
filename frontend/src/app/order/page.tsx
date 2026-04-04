@@ -452,7 +452,7 @@ If you’re unsure, just leave it blank and we’ll optimize the print for you a
                   'Submit Order Request'
                 )}
               </button>
-              <p className="text-xs text-gray-500 mt-3 text-center">
+              <p className="text-xs text-gray-200 mt-3 text-center">
                 Having trouble submitting? You can place your order by messaging us via the contact details below.
               </p>
 
