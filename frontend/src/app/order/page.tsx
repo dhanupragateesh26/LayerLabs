@@ -421,9 +421,14 @@ export default function OrderPage() {
                     <label className="block text-sm font-medium text-gray-400 mb-1">
                       If you have any special requests or goals for your print, let us know.
                     </label>
-                    <textarea name="comments" value={formData.comments} onChange={handleInputChange} className="input-field min-h-[100px]" placeholder="You can mention specific settings you'd like adjusted (e.g., more walls, reduced supports), or your main priority—strength, speed, surface finish, or cost.
-
-If you’re unsure, just leave it blank and we’ll optimize the print for you automatically" />
+                    <textarea
+                      name="comments"
+                      value={formData.comments}
+                      onChange={handleInputChange}
+                      className="input-field min-h-[120px] text-sm placeholder:text-xs placeholder:text-gray-500 leading-relaxed"
+                      placeholder={`You can mention specific settings you'd like adjusted (e.g., more walls, reduced supports), or your main priority—strength, speed, surface finish, or cost.
+                      If you’re unsure, just leave it blank and we’ll optimize the print for you automatically.`}
+                    />
                   </div>
                 </div>
               </section>
