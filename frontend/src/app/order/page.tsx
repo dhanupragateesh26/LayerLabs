@@ -352,7 +352,7 @@ export default function OrderPage() {
                       </select>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">
+                  <p className="text-xs text-gray-400 mb-3">
                     Not sure about these settings? Leave them as default and we’ll optimize the print for you.
                   </p>
                   <div className="grid grid-cols-3 gap-4">
@@ -425,7 +425,7 @@ export default function OrderPage() {
                       name="comments"
                       value={formData.comments}
                       onChange={handleInputChange}
-                      className="input-field min-h-[120px] text-sm placeholder:text-xs placeholder:text-gray-300 leading-relaxed"
+                      className="input-field min-h-[120px] text-sm placeholder:text-xs placeholder:text-gray-400 leading-relaxed"
                       placeholder={`You can mention specific settings you'd like adjusted (e.g., more walls, reduced supports), or your main priority—strength, speed, surface finish, or cost. If you’re unsure, just leave it blank and we’ll optimize the print for you automatically.`}
                     />
                   </div>
