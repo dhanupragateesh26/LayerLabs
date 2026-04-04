@@ -70,8 +70,9 @@ function initEmailTransporter() {
   }
   emailTransporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    port: 587,          // 465 is blocked on Render free plan; 587 (STARTTLS) is allowed
+    secure: false,      // false = STARTTLS upgrade after connection
+    requireTLS: true,   // enforce TLS — never send plaintext
     auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
   });
 
