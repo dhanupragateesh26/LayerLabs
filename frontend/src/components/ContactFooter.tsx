@@ -168,9 +168,9 @@ export default function ContactFooter() {
                 </div>
                 <div>
                   <p className="font-medium text-gray-200 text-sm">Email Support</p>
-                  <a href="mailto:layerlabs.in@gmail.com"
+                  <a href="mailto:[EMAIL_ADDRESS]"
                     className="text-gray-400 text-sm mt-0.5 hover:text-brand-secondary transition-colors break-all">
-                    layerlabs.in@gmail.com
+                    [EMAIL_ADDRESS]
                   </a>
                 </div>
               </div>
