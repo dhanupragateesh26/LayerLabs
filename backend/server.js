@@ -4,14 +4,16 @@ const mongoose = require('mongoose');
 const { GridFSBucket } = require('mongodb');
 const cors = require('cors');
 const multer = require('multer');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const { Readable } = require('stream');
 const Order = require('./models/Order');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 let gfsBucket;
-let emailTransporter = null;
+
+// Initialize Resend
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 const rawOrigins = process.env.ALLOWED_ORIGINS || 'http://localhost:3000';
@@ -54,7 +56,6 @@ mongoose
     console.log('✅  MongoDB connected successfully');
     gfsBucket = new GridFSBucket(mongoose.connection.db, { bucketName: 'stl_uploads' });
     console.log('✅  GridFS bucket ready');
-    initEmailTransporter();
     startCleanupJob();
   })
   .catch((err) => {
@@ -63,34 +64,11 @@ mongoose
   });
 
 // ── Email ─────────────────────────────────────────────────────────────────────
-function initEmailTransporter() {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.log('📧  Email credentials not configured — confirmation emails disabled.');
+async function sendOrderConfirmationEmail(order, req) {
+  if (!resend) {
+    console.log('📧  RESEND_API_KEY not configured — confirmation emails disabled.');
     return;
   }
-  emailTransporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,          // 465 is blocked on Render free plan; 587 (STARTTLS) is allowed
-    secure: false,      // false = STARTTLS upgrade after connection
-    family: 4, // ✅ FORCE IPv4
-    requireTLS: true,   // enforce TLS — never send plaintext
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    },
-  });
-
-  emailTransporter.verify((error, success) => {
-    if (error) {
-      console.error('❌  Email transporter configuration error:', error);
-    } else {
-      console.log('✅  Email transporter ready and verified');
-    }
-  });
-}
-
-async function sendOrderConfirmationEmail(order, req) {
-  if (!emailTransporter) return;
 
   const orderDate = new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
   // Derive the backend URL from the request so the link always works regardless of environment
@@ -149,17 +127,22 @@ async function sendOrderConfirmationEmail(order, req) {
   `;
 
   try {
-    await emailTransporter.sendMail({
-      from: `"LayerLabs" <${process.env.EMAIL_USER}>`,
-      to: order.email,
-      bcc: 'dhanupragateesh.k2006@gmail.com, smuthiahkarthik@gmail.com', // owners get a silent copy of every order
+    const { data, error } = await resend.emails.send({
+      from: 'LayerLabs <onboarding@resend.dev>', // You must verify a domain in Resend to change this!
+      to: order.email,                           // If using 'onboarding@resend.dev', this MUST be your verified Resend account email until you add a custom domain!
+      bcc: ['dhanupragateesh.k2006@gmail.com', 'smuthiahkarthik@gmail.com'],
       subject: `[LayerLabs] Order Received — ${order.stlFileName}`,
       html,
     });
-    console.log(`📧  Confirmation email sent → ${order.email}`);
+
+    if (error) {
+      console.error('📧  Resend Email send failed:', error.message);
+      return;
+    }
+    console.log(`📧  Confirmation email sent via Resend → ${order.email} (ID: ${data?.id})`);
   } catch (err) {
     // Email failure must NOT block the order response
-    console.error('📧  Email send failed:', err.message);
+    console.error('📧  Resend Crash:', err.message);
   }
 }
 
