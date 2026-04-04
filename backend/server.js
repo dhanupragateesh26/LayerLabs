@@ -88,8 +88,10 @@ async function sendOrderConfirmationEmail(order, req) {
   if (!emailTransporter) return;
 
   const orderDate = new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
-  // const backendUrl = req ? `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get('host')}` : (process.env.BACKEND_URL || 'https://layerlabs.onrender.com');
-  const backendUrl = process.env.BACKEND_URL;
+  // Derive the backend URL from the request so the link always works regardless of environment
+  const proto = (req && req.headers['x-forwarded-proto']) || (req && req.protocol) || 'https';
+  const host  = (req && req.get('host')) || process.env.BACKEND_URL || 'https://layerlabs.onrender.com';
+  const backendUrl = host.startsWith('http') ? host : `${proto}://${host}`;
   const downloadUrl = `${backendUrl}/api/orders/${order._id}/file`;
 
   const html = `
@@ -241,6 +243,9 @@ app.post('/api/orders', upload.single('stlFile'), async (req, res) => {
 /** GET /api/orders/:id/file — download the STL (owner use, within 24h) */
 app.get('/api/orders/:id/file', async (req, res) => {
   try {
+    // Allow any origin so email-client links work without CORS blocks
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'Order not found' });
     if (!order.stlFileId) return res.status(410).json({ error: 'STL file has already been deleted (>24h after order).' });
@@ -251,6 +256,24 @@ app.get('/api/orders/:id/file', async (req, res) => {
   } catch (error) {
     console.error('File download error:', error);
     res.status(500).json({ error: 'Failed to retrieve file.' });
+  }
+});
+
+/** GET /api/orders — list all orders with their download URLs (admin) */
+app.get('/api/orders', async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 }).select('-__v');
+    const proto = req.headers['x-forwarded-proto'] || req.protocol;
+    const host  = req.get('host');
+    const base  = host.startsWith('http') ? host : `${proto}://${host}`;
+    const result = orders.map(o => ({
+      ...o.toObject(),
+      downloadUrl: o.stlFileId ? `${base}/api/orders/${o._id}/file` : null,
+    }));
+    res.json(result);
+  } catch (error) {
+    console.error('List orders error:', error);
+    res.status(500).json({ error: 'Failed to list orders.' });
   }
 });
 
