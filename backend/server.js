@@ -91,7 +91,7 @@ async function sendOrderConfirmationEmail(order, req) {
   const orderDate = new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
   // Derive the backend URL from the request so the link always works regardless of environment
   const proto = (req && req.headers['x-forwarded-proto']) || (req && req.protocol) || 'https';
-  const host  = (req && req.get('host')) || process.env.BACKEND_URL || 'https://layerlabs.onrender.com';
+  const host = (req && req.get('host')) || process.env.BACKEND_URL || 'https://layerlabs.onrender.com';
   const backendUrl = host.startsWith('http') ? host : `${proto}://${host}`;
   const downloadUrl = `${backendUrl}/api/orders/${order._id}/file`;
 
@@ -265,8 +265,8 @@ app.get('/api/orders', async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 }).select('-__v');
     const proto = req.headers['x-forwarded-proto'] || req.protocol;
-    const host  = req.get('host');
-    const base  = host.startsWith('http') ? host : `${proto}://${host}`;
+    const host = req.get('host');
+    const base = host.startsWith('http') ? host : `${proto}://${host}`;
     const result = orders.map(o => ({
       ...o.toObject(),
       downloadUrl: o.stlFileId ? `${base}/api/orders/${o._id}/file` : null,
