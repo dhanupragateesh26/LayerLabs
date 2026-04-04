@@ -12,7 +12,7 @@ const QUICK_LINKS = [
   { label: 'Start an Order', href: '/order' },
 ];
 
-const MATERIALS = ['PLA', 'PETG', 'TPU', 'ABS (coming soon)'];
+const MATERIALS = ['PLA', 'PETG', 'TPU (coming soon)', 'ABS (coming soon)'];
 
 
 
@@ -58,7 +58,7 @@ export default function ContactFooter() {
               </span>
             </Link>
             <p className="text-gray-400 leading-relaxed text-sm max-w-xs">
-              High-quality custom 3D printing. From rapid prototypes to production runs — we bring your digital ideas into the physical world with precision and speed.
+              High-quality custom 3D printing. From rapid prototypes to production runs, we bring your digital ideas into the physical world with precision and speed.
             </p>
 
             {/* Social icons */}
@@ -192,7 +192,7 @@ export default function ContactFooter() {
         {/* ── Bottom bar ── */}
         <div className="pt-6 border-t border-gray-900 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-600 text-xs text-center sm:text-left">
-            © {new Date().getFullYear()} LayerLabs. All rights reserved. Built with ❤️ for makers.
+            © {new Date().getFullYear()} LayerLabs. All rights reserved..
           </p>
           <div className="flex items-center gap-5 text-xs">
             <a href="#" className="text-gray-600 hover:text-gray-400 transition-colors">Privacy Policy</a>
