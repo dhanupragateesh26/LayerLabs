@@ -425,9 +425,8 @@ export default function OrderPage() {
                       name="comments"
                       value={formData.comments}
                       onChange={handleInputChange}
-                      className="input-field min-h-[120px] text-sm placeholder:text-xs placeholder:text-gray-500 leading-relaxed"
-                      placeholder={`You can mention specific settings you'd like adjusted (e.g., more walls, reduced supports), or your main priority—strength, speed, surface finish, or cost.
-                      If you’re unsure, just leave it blank and we’ll optimize the print for you automatically.`}
+                      className="input-field min-h-[120px] text-sm placeholder:text-xs placeholder:text-gray-300 leading-relaxed"
+                      placeholder={`You can mention specific settings you'd like adjusted (e.g., more walls, reduced supports), or your main priority—strength, speed, surface finish, or cost. If you’re unsure, just leave it blank and we’ll optimize the print for you automatically.`}
                     />
                   </div>
                 </div>
@@ -457,7 +456,7 @@ export default function OrderPage() {
                   'Submit Order Request'
                 )}
               </button>
-              <p className="text-xs text-gray-200 mt-3 text-center">
+              <p className="text-sm text-gray-200 mt-3 text-center">
                 Having trouble submitting? You can place your order by messaging us via the contact details below.
               </p>
 
