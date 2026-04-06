@@ -221,6 +221,22 @@ app.post('/api/orders', upload.single('stlFile'), async (req, res) => {
     res.status(201).json({
       message: 'Thank you! Your request has been received. You will be contacted soon.',
       orderId: newOrder._id,
+      order: {
+        _id: newOrder._id,
+        name: newOrder.name,
+        email: newOrder.email,
+        phone: newOrder.phone,
+        address: newOrder.address,
+        material: newOrder.material,
+        color: newOrder.color,
+        infillDensity: newOrder.infillDensity,
+        infillPattern: newOrder.infillPattern,
+        quantity: newOrder.quantity,
+        comments: newOrder.comments,
+        stlFileName: newOrder.stlFileName,
+        createdAt: newOrder.createdAt,
+        volumeMm3: newOrder.volumeMm3 || null,
+      },
     });
   } catch (error) {
     console.error('Order submission error:', error);

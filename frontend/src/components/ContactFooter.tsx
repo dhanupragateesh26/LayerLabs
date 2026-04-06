@@ -170,7 +170,7 @@ export default function ContactFooter() {
                   <p className="font-medium text-gray-200 text-sm">Email Support</p>
                   <a href="mailto:[EMAIL_ADDRESS]"
                     className="text-gray-400 text-sm mt-0.5 hover:text-brand-secondary transition-colors break-all">
-                    [EMAIL_ADDRESS]
+                    layerlabs.org@gmail.com
                   </a>
                 </div>
               </div>

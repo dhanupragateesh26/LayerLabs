@@ -4,6 +4,23 @@ import React, { useState, useRef, ChangeEvent, FormEvent } from 'react';
 import { UploadCloud, FileType2, CheckCircle, AlertCircle } from 'lucide-react';
 import STLViewer from '@/components/STLViewer';
 
+interface OrderSummary {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  material: string;
+  color: string;
+  infillDensity: string;
+  infillPattern: string;
+  quantity: number;
+  comments?: string;
+  stlFileName: string;
+  createdAt: string;
+  volumeMm3?: number | null;
+}
+
 export default function OrderPage() {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState('');
@@ -11,6 +28,7 @@ export default function OrderPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submittedOrder, setSubmittedOrder] = useState<OrderSummary | null>(null);
   const [submitError, setSubmitError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
 
@@ -98,18 +116,6 @@ export default function OrderPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Uses strict 100% infill weight estimation (Multiplied by quantity)
-  const calculateWeight = (volumeMm3: number, material: string, qty: number) => {
-    const densities: Record<string, number> = {
-      PLA: 1.24,
-      PETG: 1.27,
-      TPU: 1.21,
-      ABS: 1.04,
-    };
-    const density = densities[material] || 1.24;
-    const weightGrams = (volumeMm3 / 1000) * density * qty;
-    return weightGrams.toFixed(2);
-  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -147,6 +153,8 @@ export default function OrderPage() {
       setUploadProgress(100);
 
       if (res.ok) {
+        const result = await res.json();
+        setSubmittedOrder(result.order ?? null);
         setSubmitSuccess(true);
         setFile(null);
         setFileName('');
@@ -187,23 +195,59 @@ export default function OrderPage() {
         </div>
 
         {submitSuccess ? (
-          <div className="card bg-gray-950 p-12 text-center border-brand-primary/30 max-w-2xl mx-auto">
-            <div className="relative inline-flex items-center justify-center mb-6">
-              <div className="absolute w-24 h-24 bg-brand-primary/20 rounded-full blur-xl animate-pulse" />
-              <CheckCircle className="w-16 h-16 text-brand-primary relative z-10" />
+          <div className="max-w-2xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="card bg-gray-950 p-8 text-center border-brand-primary/30">
+              <div className="relative inline-flex items-center justify-center mb-5">
+                <div className="absolute w-24 h-24 bg-brand-primary/20 rounded-full blur-xl animate-pulse" />
+                <CheckCircle className="w-16 h-16 text-brand-primary relative z-10" />
+              </div>
+              <h2 className="text-3xl font-bold mb-2 text-white">Order Received! 🎉</h2>
+              <p className="text-gray-400 text-base leading-relaxed">Your 3D print request has been submitted. We&apos;ll review your file and contact you with a personalised quote soon.</p>
             </div>
-            <h2 className="text-3xl font-bold mb-3 text-white">Order Received! 🎉</h2>
-            <p className="text-gray-400 mb-4 text-lg leading-relaxed">Your 3D print request has been submitted successfully.</p>
-            <div className="bg-brand-primary/10 border border-brand-primary/30 rounded-lg px-5 py-4 mb-8 text-left space-y-2">
-              <p className="text-sm text-brand-secondary font-semibold">✉️ &nbsp;Confirmation email sent</p>
-              <p className="text-sm text-gray-400">A confirmation with your order summary has been sent to your email. Our team will review your file and send a personalised quote shortly.</p>
+
+            {/* Order Summary Card */}
+            {submittedOrder && (
+              <div className="card bg-gray-950 border-gray-800 p-6 space-y-4">
+                <p className="text-xs text-brand-primary uppercase tracking-widest font-bold mb-2">Order Summary</p>
+                <div className="divide-y divide-gray-800 text-sm">
+                  {([
+                    ['Order ID', <span key="id" className="font-mono text-brand-secondary text-xs break-all">{submittedOrder._id}</span>],
+                    ['File', submittedOrder.stlFileName],
+                    ['Customer', submittedOrder.name],
+                    ['Email', submittedOrder.email],
+                    ['Phone', submittedOrder.phone],
+                    ['Material', submittedOrder.material],
+                    ['Color', submittedOrder.color],
+                    ['Infill Density', submittedOrder.infillDensity],
+                    ['Infill Pattern', submittedOrder.infillPattern],
+                    ['Quantity', String(submittedOrder.quantity)],
+                    ['Delivery Address', submittedOrder.address],
+                    ...(submittedOrder.comments ? [['Special Requests', submittedOrder.comments] as [string, string]] : []),
+                    ['Date Submitted', new Date(submittedOrder.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })],
+                  ] as [string, React.ReactNode][]).map(([label, value]) => (
+                    <div key={label as string} className="flex justify-between gap-4 py-2.5">
+                      <span className="text-gray-500 shrink-0 w-36">{label}</span>
+                      <span className="text-gray-200 text-right">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Footer note */}
+            <div className="bg-brand-primary/10 border border-brand-primary/30 rounded-xl px-5 py-4 text-sm text-gray-300 leading-relaxed">
+              ⏰ <span className="font-semibold text-white">Note:</span> Your uploaded STL file is stored securely in the cloud for <span className="font-semibold text-white">24 hours</span>. We&apos;ll download and process it within that window.
             </div>
-            <button
-              onClick={() => setSubmitSuccess(false)}
-              className="btn-outline"
-            >
-              Submit Another Print
-            </button>
+
+            <div className="text-center">
+              <button
+                onClick={() => { setSubmitSuccess(false); setSubmittedOrder(null); }}
+                className="btn-outline"
+              >
+                Submit Another Print
+              </button>
+            </div>
           </div>
         ) : (
           <div className="grid lg:grid-cols-2 gap-8 items-start">
@@ -270,23 +314,17 @@ export default function OrderPage() {
                   <STLViewer file={file} onVolumeCalculated={setVolumeMm3} />
                 </div>
                 {file && volumeMm3 > 0 && (
-                  <div className="w-full bg-black border border-gray-800 p-4 rounded-lg flex justify-between items-center mt-2 animate-in fade-in zoom-in-95 duration-500">
+                  <div className="w-full bg-black border border-gray-800 p-4 rounded-lg flex items-center gap-4 mt-2 animate-in fade-in zoom-in-95 duration-500">
                     <div>
-                      <p className="text-sm text-gray-500">Volume</p>
-                      <p className="font-semibold text-gray-300">{Math.round(volumeMm3).toLocaleString()} mm³</p>
-                    </div>
-                    <div className="text-right flex flex-col items-end">
-                      <p className="text-sm text-gray-300 font-medium tracking-wide">Est. Solid Weight <span className="text-brand-primary">x{formData.quantity}</span></p>
-                      <p className="font-bold text-brand-secondary text-2xl drop-shadow-[0_0_15px_rgba(192,132,252,0.4)]">
-                        ~{calculateWeight(volumeMm3, formData.material, formData.quantity as number)} g
-                      </p>
+                      <p className="text-sm text-gray-500">Model Volume</p>
+                      <p className="font-bold text-brand-secondary text-2xl drop-shadow-[0_0_15px_rgba(192,132,252,0.4)]">{Math.round(volumeMm3).toLocaleString()} mm³</p>
                     </div>
                   </div>
                 )}
                 {file && (
                   <div className="w-full mt-4 space-y-2">
-                    <p className="text-xs text-gray-400 bg-gray-900 p-2 rounded-md border border-gray-800 text-center leading-relaxed">
-                      <span className="text-yellow-500 font-bold">Note:</span> The weight above is a maximum estimate based on a <span className="text-white font-semibold">100% solid object</span>. Your actual print weight (and cost) will likely be lower depending on your chosen infill density! But <span className="text-white font-semibold">supports</span> can add up if there are floating elements!
+                    <p className="text-xs text-gray-400 bg-gray-900 p-3 rounded-md border border-yellow-500/20 leading-relaxed">
+                      <span className="text-yellow-400 font-bold">⚠️ Note:</span> We do not provide material weight because it depends on various factors like <span className="text-white font-semibold">infill, wall loops, material and supports</span> — which can only be accurately determined by your slicer software.
                     </p>
                     <p className="text-sm font-semibold text-purple-200 bg-brand-primary/20 border border-brand-primary/40 py-2 px-3 rounded-md text-center shadow-[0_0_15px_rgba(168,85,247,0.15)] flex justify-center items-center gap-2">
                       <span>✨</span> A final, precise quote will be calculated and sent to you later.
