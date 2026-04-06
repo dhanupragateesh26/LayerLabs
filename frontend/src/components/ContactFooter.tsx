@@ -144,7 +144,7 @@ export default function ContactFooter() {
           <div className="space-y-4">
             <h3 className="text-white font-semibold text-sm uppercase tracking-widest">Contact Us</h3>
             <p className="text-gray-500 text-xs leading-relaxed">
-              For personalised or bulk orders, feel free to reach out directly on the numbers below.
+              For personalised orders, feel free to reach out directly on the numbers below.
             </p>
             <div className="space-y-3">
               {[
@@ -202,7 +202,7 @@ export default function ContactFooter() {
             <span className="text-gray-800">·</span>
             <a href="#" className="text-gray-600 hover:text-gray-400 transition-colors">Terms of Service</a>
             <span className="text-gray-800">·</span>
-            <a href="mailto:layerlabs.in@gmail.com" className="text-gray-600 hover:text-gray-400 transition-colors">Support</a>
+            <a href="mailto:layerlabs.org@gmail.com" className="text-gray-600 hover:text-gray-400 transition-colors">Support</a>
           </div>
         </div>
       </div>

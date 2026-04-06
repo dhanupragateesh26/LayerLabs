@@ -129,7 +129,7 @@ async function sendOrderConfirmationEmail(order, req) {
   try {
     const { data, error } = await resend.emails.send({
       from: 'LayerLabs <onboarding@resend.dev>', // You must verify a domain in Resend to change this!
-      to: 'dhanupragateesh.k2006@gmail.com', //order.email, // If using 'onboarding@resend.dev', this MUST be your verified Resend account email until you add a custom domain!
+      to: 'layerlabs.org@gmail.com', //order.email, // If using 'onboarding@resend.dev', this MUST be your verified Resend account email until you add a custom domain!
       // bcc: ['dhanupragateesh.k2006@gmail.com', 'smuthiahkarthik@gmail.com'],
       subject: `[LayerLabs] Order Received — ${order.stlFileName}`,
       html,
