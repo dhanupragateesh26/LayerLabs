@@ -143,6 +143,9 @@ export default function ContactFooter() {
           {/* Contact */}
           <div className="space-y-4">
             <h3 className="text-white font-semibold text-sm uppercase tracking-widest">Contact Us</h3>
+            <p className="text-gray-500 text-xs leading-relaxed">
+              For personalised or bulk orders, feel free to reach out directly on the numbers below.
+            </p>
             <div className="space-y-3">
               {[
                 { name: 'Dhanu ', phone: '+91 98402 74943' },
