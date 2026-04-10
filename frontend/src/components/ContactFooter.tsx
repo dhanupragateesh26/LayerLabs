@@ -43,6 +43,50 @@ export default function ContactFooter() {
 
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-8 relative z-10">
 
+        {/* ── Personalised Orders Banner ── */}
+        <div className="relative mb-10 rounded-2xl overflow-hidden border border-brand-primary/25 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
+          {/* Glow layers */}
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/10 via-transparent to-brand-secondary/10 pointer-events-none" />
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-32 bg-brand-primary/15 blur-[60px] pointer-events-none" />
+
+          <div className="relative z-10 px-8 py-10 text-center">
+            <p className="text-xs uppercase tracking-[0.2em] text-brand-secondary font-semibold mb-3">
+              Personalised Orders
+            </p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight mb-2">
+              Got something specific in mind?
+            </h2>
+            <p className="text-gray-400 text-sm sm:text-base mb-8 max-w-xl mx-auto">
+              Reach out directly — we&apos;ll craft the perfect print for you.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              {[
+                { name: 'Dhanu', phone: '+91 98402 74943' },
+                { name: 'Muthiah Karthik', phone: '+91 88382 96344' },
+              ].map(({ name, phone }) => (
+                <a
+                  key={name}
+                  href={`tel:${phone.replace(/\s/g, '')}`}
+                  className="group flex items-center gap-4 bg-black/40 border border-gray-800 hover:border-brand-primary/60
+                    hover:bg-brand-primary/10 rounded-xl px-6 py-4 transition-all duration-200
+                    hover:shadow-[0_0_25px_rgba(168,85,247,0.2)] w-full sm:w-auto"
+                >
+                  <div className="p-2 rounded-full bg-brand-primary/10 text-brand-primary group-hover:bg-brand-primary/20 transition-colors shrink-0">
+                    <Phone size={20} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-gray-400 text-xs font-medium">{name}</p>
+                    <p className="text-white text-xl sm:text-2xl font-bold tracking-wide group-hover:text-brand-secondary transition-colors">
+                      {phone}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* ── Main grid ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
 
@@ -192,49 +236,6 @@ export default function ContactFooter() {
           </div>
         </div>
 
-        {/* ── Personalised Orders Banner ── */}
-        <div className="relative mb-10 rounded-2xl overflow-hidden border border-brand-primary/25 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
-          {/* Glow layers */}
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/10 via-transparent to-brand-secondary/10 pointer-events-none" />
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-32 bg-brand-primary/15 blur-[60px] pointer-events-none" />
-
-          <div className="relative z-10 px-8 py-10 text-center">
-            <p className="text-xs uppercase tracking-[0.2em] text-brand-secondary font-semibold mb-3">
-              Personalised Orders
-            </p>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight mb-2">
-              Got something specific in mind?
-            </h2>
-            <p className="text-gray-400 text-sm sm:text-base mb-8 max-w-xl mx-auto">
-              Reach out directly — we&apos;ll craft the perfect print for you.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              {[
-                { name: 'Dhanu', phone: '+91 98402 74943' },
-                { name: 'Muthiah Karthik', phone: '+91 88382 96344' },
-              ].map(({ name, phone }) => (
-                <a
-                  key={name}
-                  href={`tel:${phone.replace(/\s/g, '')}`}
-                  className="group flex items-center gap-4 bg-black/40 border border-gray-800 hover:border-brand-primary/60
-                    hover:bg-brand-primary/10 rounded-xl px-6 py-4 transition-all duration-200
-                    hover:shadow-[0_0_25px_rgba(168,85,247,0.2)] w-full sm:w-auto"
-                >
-                  <div className="p-2 rounded-full bg-brand-primary/10 text-brand-primary group-hover:bg-brand-primary/20 transition-colors shrink-0">
-                    <Phone size={20} />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-gray-400 text-xs font-medium">{name}</p>
-                    <p className="text-white text-xl sm:text-2xl font-bold tracking-wide group-hover:text-brand-secondary transition-colors">
-                      {phone}
-                    </p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* ── Bottom bar ── */}
         <div className="pt-6 border-t border-gray-900 flex flex-col sm:flex-row items-center justify-between gap-4">
