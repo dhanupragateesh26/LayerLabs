@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import {
-  Mail, Phone, User, Camera, XIcon, Globe,
+  Phone, User, Camera, XIcon, Globe,
   MapPin, Box, Printer, Clock, ArrowUpRight,
 } from 'lucide-react';
 
@@ -141,52 +141,38 @@ export default function ContactFooter() {
           </div>
 
           {/* Contact */}
-          <div className="space-y-4">
+          <div className="sm:col-span-2 lg:col-span-2 space-y-5">
             <h3 className="text-white font-semibold text-sm uppercase tracking-widest">Contact Us</h3>
-            <p className="text-gray-500 text-xs leading-relaxed">
-              For personalised orders, feel free to reach out directly on the numbers below.
-            </p>
-            <div className="space-y-3">
+            <div className="grid sm:grid-cols-2 gap-4">
               {[
-                { name: 'Dhanu ', phone: '+91 98402 74943' },
+                { name: 'Dhanu', phone: '+91 98402 74943' },
                 { name: 'Muthiah Karthik', phone: '+91 88382 96344' },
               ].map(({ name, phone }) => (
-                <div key={name} className="flex items-start gap-3 group">
-                  <div className="mt-0.5 p-1.5 rounded-full bg-gray-900 text-brand-secondary group-hover:bg-brand-primary/20 transition-colors shrink-0">
-                    <User size={14} />
+                <div key={name}
+                  className="flex items-center gap-4 bg-gray-900/60 border border-gray-800 rounded-xl p-4
+                    hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-all duration-200 group">
+                  <div className="p-2.5 rounded-full bg-brand-secondary/10 text-brand-secondary group-hover:bg-brand-secondary/20 transition-colors shrink-0">
+                    <User size={18} />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-200 text-sm">{name}</p>
+                    <p className="font-semibold text-gray-100 text-base">{name}</p>
                     <a href={`tel:${phone.replace(/\s/g, '')}`}
-                      className="text-gray-400 text-sm mt-0.5 hover:text-brand-secondary transition-colors flex items-center gap-1">
-                      <Phone size={12} className="inline" /> {phone}
+                      className="text-gray-400 text-sm mt-0.5 hover:text-brand-secondary transition-colors flex items-center gap-1.5">
+                      <Phone size={13} className="inline" /> {phone}
                     </a>
                   </div>
                 </div>
               ))}
-
-              <div className="flex items-start gap-3 group">
-                <div className="mt-0.5 p-1.5 rounded-full bg-gray-900 text-brand-secondary group-hover:bg-brand-primary/20 transition-colors shrink-0">
-                  <Mail size={14} />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-200 text-sm">Email Support</p>
-                  <a href="mailto:[EMAIL_ADDRESS]"
-                    className="text-gray-400 text-sm mt-0.5 hover:text-brand-secondary transition-colors break-all">
-                    layerlabs.org@gmail.com
-                  </a>
-                </div>
-              </div>
             </div>
 
             {/* CTA */}
             <Link
               href="/order"
               className="mt-2 inline-flex items-center gap-2 bg-gradient-to-r from-brand-secondary to-brand-primary
-                text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]
+                text-white text-sm font-semibold px-5 py-3 rounded-lg hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]
                 hover:-translate-y-0.5 transition-all duration-200"
             >
-              <Printer size={14} />
+              <Printer size={15} />
               Start a Print
             </Link>
           </div>
