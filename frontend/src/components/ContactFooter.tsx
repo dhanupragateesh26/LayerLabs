@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import {
-  Phone, User, Camera, XIcon, Globe,
+  Mail, Phone, User, Camera, XIcon, Globe,
   MapPin, Box, Printer, Clock, ArrowUpRight,
 } from 'lucide-react';
 
@@ -141,40 +141,98 @@ export default function ContactFooter() {
           </div>
 
           {/* Contact */}
-          <div className="sm:col-span-2 lg:col-span-2 space-y-5">
+          <div className="space-y-4">
             <h3 className="text-white font-semibold text-sm uppercase tracking-widest">Contact Us</h3>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <p className="text-gray-500 text-xs leading-relaxed">
+              For personalised orders, feel free to reach out directly on the numbers below.
+            </p>
+            <div className="space-y-3">
               {[
-                { name: 'Dhanu', phone: '+91 98402 74943' },
+                { name: 'Dhanu ', phone: '+91 98402 74943' },
                 { name: 'Muthiah Karthik', phone: '+91 88382 96344' },
               ].map(({ name, phone }) => (
-                <div key={name}
-                  className="flex items-center gap-4 bg-gray-900/60 border border-gray-800 rounded-xl p-4
-                    hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-all duration-200 group">
-                  <div className="p-2.5 rounded-full bg-brand-secondary/10 text-brand-secondary group-hover:bg-brand-secondary/20 transition-colors shrink-0">
-                    <User size={18} />
+                <div key={name} className="flex items-start gap-3 group">
+                  <div className="mt-0.5 p-1.5 rounded-full bg-gray-900 text-brand-secondary group-hover:bg-brand-primary/20 transition-colors shrink-0">
+                    <User size={14} />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-100 text-base">{name}</p>
+                    <p className="font-medium text-gray-200 text-sm">{name}</p>
                     <a href={`tel:${phone.replace(/\s/g, '')}`}
-                      className="text-gray-400 text-sm mt-0.5 hover:text-brand-secondary transition-colors flex items-center gap-1.5">
-                      <Phone size={13} className="inline" /> {phone}
+                      className="text-gray-400 text-sm mt-0.5 hover:text-brand-secondary transition-colors flex items-center gap-1">
+                      <Phone size={12} className="inline" /> {phone}
                     </a>
                   </div>
                 </div>
               ))}
+
+              <div className="flex items-start gap-3 group">
+                <div className="mt-0.5 p-1.5 rounded-full bg-gray-900 text-brand-secondary group-hover:bg-brand-primary/20 transition-colors shrink-0">
+                  <Mail size={14} />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-200 text-sm">Email Support</p>
+                  <a href="mailto:layerlabs.org@gmail.com"
+                    className="text-gray-400 text-sm mt-0.5 hover:text-brand-secondary transition-colors break-all">
+                    layerlabs.org@gmail.com
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* CTA */}
             <Link
               href="/order"
               className="mt-2 inline-flex items-center gap-2 bg-gradient-to-r from-brand-secondary to-brand-primary
-                text-white text-sm font-semibold px-5 py-3 rounded-lg hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]
+                text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]
                 hover:-translate-y-0.5 transition-all duration-200"
             >
-              <Printer size={15} />
+              <Printer size={14} />
               Start a Print
             </Link>
+          </div>
+        </div>
+
+        {/* ── Personalised Orders Banner ── */}
+        <div className="relative mb-10 rounded-2xl overflow-hidden border border-brand-primary/25 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
+          {/* Glow layers */}
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/10 via-transparent to-brand-secondary/10 pointer-events-none" />
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-32 bg-brand-primary/15 blur-[60px] pointer-events-none" />
+
+          <div className="relative z-10 px-8 py-10 text-center">
+            <p className="text-xs uppercase tracking-[0.2em] text-brand-secondary font-semibold mb-3">
+              Personalised Orders
+            </p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight mb-2">
+              Got something specific in mind?
+            </h2>
+            <p className="text-gray-400 text-sm sm:text-base mb-8 max-w-xl mx-auto">
+              Reach out directly — we&apos;ll craft the perfect print for you.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              {[
+                { name: 'Dhanu', phone: '+91 98402 74943' },
+                { name: 'Muthiah Karthik', phone: '+91 88382 96344' },
+              ].map(({ name, phone }) => (
+                <a
+                  key={name}
+                  href={`tel:${phone.replace(/\s/g, '')}`}
+                  className="group flex items-center gap-4 bg-black/40 border border-gray-800 hover:border-brand-primary/60
+                    hover:bg-brand-primary/10 rounded-xl px-6 py-4 transition-all duration-200
+                    hover:shadow-[0_0_25px_rgba(168,85,247,0.2)] w-full sm:w-auto"
+                >
+                  <div className="p-2 rounded-full bg-brand-primary/10 text-brand-primary group-hover:bg-brand-primary/20 transition-colors shrink-0">
+                    <Phone size={20} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-gray-400 text-xs font-medium">{name}</p>
+                    <p className="text-white text-xl sm:text-2xl font-bold tracking-wide group-hover:text-brand-secondary transition-colors">
+                      {phone}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 
