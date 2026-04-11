@@ -40,8 +40,8 @@ export default function OrderPage() {
     address: '',
     material: 'PLA',
     color: 'Grey',
-    infillDensity: "default",
-    infillPattern: "default",
+    infillDensity: "Default",
+    infillPattern: "Default",
     quantity: 1,
     comments: '',
   });
@@ -63,8 +63,8 @@ export default function OrderPage() {
     ABS: ['Black'],
   };
 
-  const infillDensities = ["default", '10%', '15%', '20%', '40%', '60%', '80%', '100%'];
-  const infillPatterns = ["default", 'Grid', 'Gyroid', 'Triangles', 'Cubic'];
+  const infillDensities = ["Default", '10%', '15%', '20%', '40%', '60%', '80%', '100%'];
+  const infillPatterns = ["Default", 'Grid', 'Gyroid', 'Triangles', 'Cubic'];
 
   // Handlers
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
@@ -160,7 +160,7 @@ export default function OrderPage() {
         setFileName('');
         setVolumeMm3(0);
         setFormData({
-          name: '', email: '', phone: '', address: '', material: 'PLA', color: 'Grey', infillDensity: "default", infillPattern: "default", quantity: 1, comments: ''
+          name: '', email: '', phone: '', address: '', material: 'PLA', color: 'Grey', infillDensity: "Default", infillPattern: "Default", quantity: 1, comments: ''
         });
       } else {
         try {
