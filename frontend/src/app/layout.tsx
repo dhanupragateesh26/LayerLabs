@@ -4,6 +4,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import ContactFooter from '@/components/ContactFooter';
 import InteractiveBackground from '@/components/InteractiveBackground';
+import WakeUpBackend from '@/components/WakeUpBackend';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <body className={`${inter.className} min-h-screen bg-black text-gray-100 flex flex-col relative`}>
+        <WakeUpBackend />
         <InteractiveBackground />
         <Navbar />
         {/* Added padding top to account for floating navbar */}
