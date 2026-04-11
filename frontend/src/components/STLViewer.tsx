@@ -11,24 +11,24 @@ interface STLViewerProps {
 }
 
 const COLOR_OPTIONS = [
-  { label: 'White',  value: '#efefef' },
+  { label: 'White', value: '#efefef' },
   { label: 'Silver', value: '#9ca3af' },
-  { label: 'Black',  value: '#222222' },
+  { label: 'Black', value: '#222222' },
   { label: 'Purple', value: '#a855f7' },
-  { label: 'Gold',   value: '#f59e0b' },
-  { label: 'Blue',   value: '#60a5fa' },
-  { label: 'Red',    value: '#ef4444' },
-  { label: 'Green',  value: '#22c55e' },
+  { label: 'Gold', value: '#f59e0b' },
+  { label: 'Blue', value: '#60a5fa' },
+  { label: 'Red', value: '#ef4444' },
+  { label: 'Green', value: '#22c55e' },
 ];
 
 export default function STLViewer({ file, onVolumeCalculated }: STLViewerProps) {
-  const mountRef   = useRef<HTMLDivElement>(null);
+  const mountRef = useRef<HTMLDivElement>(null);
   const materialRef = useRef<THREE.MeshStandardMaterial | null>(null);
-  const colorRef    = useRef(COLOR_OPTIONS[0].value); // tracks current color without triggering STL reload
+  const colorRef = useRef(COLOR_OPTIONS[0].value); // tracks current color without triggering STL reload
 
-  const [error, setError]           = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [modelColor, setModelColor] = useState(COLOR_OPTIONS[0].value);
-  const [isLoading, setIsLoading]   = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // ── Update material color without reloading the STL ──────────────────────
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function STLViewer({ file, onVolumeCalculated }: STLViewerProps) 
     setError(null);
     setIsLoading(true);
 
-    const width  = mountRef.current.clientWidth;
+    const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
 
     const scene = new THREE.Scene();
@@ -100,15 +100,15 @@ export default function STLViewer({ file, onVolumeCalculated }: STLViewerProps) 
         mesh = new THREE.Mesh(geometry, material);
 
         geometry.computeBoundingBox();
-        const bbox   = geometry.boundingBox!;
+        const bbox = geometry.boundingBox!;
         const center = new THREE.Vector3();
         bbox.getCenter(center);
         mesh.position.sub(center);
 
-        const size   = new THREE.Vector3();
+        const size = new THREE.Vector3();
         bbox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
-        const fov    = camera.fov * (Math.PI / 180);
+        const fov = camera.fov * (Math.PI / 180);
         const cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2)) * 1.5;
         camera.position.set(0, -cameraZ, cameraZ);
         camera.lookAt(0, 0, 0);
