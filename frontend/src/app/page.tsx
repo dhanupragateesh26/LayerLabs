@@ -310,13 +310,13 @@ export default function Home() {
           >
             <motion.div variants={fadeUp} className="card bg-gray-950/80 p-8 border-brand-secondary/20 hover:border-brand-secondary transition-colors">
               <h3 className="text-2xl font-bold mb-2 text-white">PLA</h3>
-              <p className="text-brand-secondary font-semibold text-xl mb-4">₹2.5 <span className="text-sm font-normal text-gray-500">/ gram</span></p>
+              <p className="text-brand-secondary font-semibold text-xl mb-4"><span className="text-sm font-normal text-gray-500"></span></p>
               <p className="text-gray-400 text-sm mb-6 h-16">Ideal for detailed prototypes, structural components, and miniatures.</p>
             </motion.div>
 
             <motion.div variants={fadeUp} className="card bg-gray-950/80 p-8 border-brand-primary/20 hover:border-brand-primary transition-colors">
               <h3 className="text-2xl font-bold mb-2 text-white">PETG</h3>
-              <p className="text-brand-primary font-semibold text-xl mb-4">₹3.5 <span className="text-sm font-normal text-gray-500">/ gram</span></p>
+              <p className="text-brand-primary font-semibold text-xl mb-4"><span className="text-sm font-normal text-gray-500"></span></p>
               <p className="text-gray-400 text-sm mb-6 h-16">Durable, strong layer adhesion. Great for mechanical parts.</p>
             </motion.div>
 
@@ -326,7 +326,7 @@ export default function Home() {
                 <span className="text-xs font-bold uppercase tracking-wider bg-gray-900 text-gray-300 px-3 py-1 rounded-full border border-gray-800">Coming Soon</span>
               </div>
               <h3 className="text-2xl font-bold mb-2 text-gray-400 mt-2">TPU</h3>
-              <p className="text-purple-400 font-semibold text-xl mb-4">₹5 <span className="text-sm font-normal text-gray-500">/ gram</span></p>
+              <p className="text-purple-400 font-semibold text-xl mb-4"><span className="text-sm font-normal text-gray-500"></span></p>
               <p className="text-gray-400 text-sm mb-6 h-16">Flexible, rubber-like material perfect for wearables and seals.</p>
             </motion.div>
 
@@ -335,7 +335,7 @@ export default function Home() {
                 <span className="text-xs font-bold uppercase tracking-wider bg-gray-900 text-gray-300 px-3 py-1 rounded-full border border-gray-800">Coming Soon</span>
               </div>
               <h3 className="text-2xl font-bold mb-2 text-gray-400 mt-2">ABS</h3>
-              <p className="text-gray-500 font-medium text-lg mb-4">₹5 <span className="text-sm font-normal text-gray-600">/ gram</span></p>
+              <p className="text-gray-500 font-medium text-lg mb-4"><span className="text-sm font-normal text-gray-600"></span></p>
               <p className="text-gray-500 text-sm h-16">High impact resistance and high temperature tolerance.</p>
             </motion.div>
           </motion.div>

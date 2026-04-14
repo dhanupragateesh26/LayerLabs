@@ -94,12 +94,12 @@ export default function Navbar() {
               href={link.path}
               onClick={(e) => handleAnchorClick(e, link)}
               className={`transition-all font-semibold text-sm px-3 py-2 rounded-full ${link.path === '/order'
-                  ? isActive(link)
-                    ? 'bg-brand-primary text-white shadow-[0_0_20px_rgba(168,85,247,0.4)]'
-                    : 'bg-gradient-to-r from-brand-secondary to-brand-primary text-white hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:-translate-y-0.5'
-                  : isActive(link)
-                    ? 'bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/50'
-                    : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'
+                ? isActive(link)
+                  ? 'bg-brand-primary text-white shadow-[0_0_20px_rgba(168,85,247,0.4)]'
+                  : 'bg-gradient-to-r from-brand-secondary to-brand-primary text-white hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:-translate-y-0.5'
+                : isActive(link)
+                  ? 'bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/50'
+                  : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'
                 }`}
             >
               {link.name}
@@ -126,10 +126,10 @@ export default function Navbar() {
               href={link.path}
               onClick={(e) => handleAnchorClick(e, link)}
               className={`block font-semibold text-sm px-4 py-2.5 rounded-full transition-all ${link.path === '/order'
-                  ? 'bg-gradient-to-r from-brand-secondary to-brand-primary text-white text-center'
-                  : isActive(link)
-                    ? 'bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/50'
-                    : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'
+                ? 'bg-gradient-to-r from-brand-secondary to-brand-primary text-white text-center'
+                : isActive(link)
+                  ? 'bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/50'
+                  : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'
                 }`}
             >
               {link.name}
