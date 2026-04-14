@@ -297,7 +297,7 @@ export default function Home() {
             variants={fadeUp}
             className="text-center space-y-4 mb-16"
           >
-            <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">Materials & Pricing</h2>
+            <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">Materials </h2>
             <p className="text-gray-400 max-w-2xl mx-auto text-lg pt-2">We offer premium materials designed for strength, precision, and flexibility.</p>
           </motion.div>
 
