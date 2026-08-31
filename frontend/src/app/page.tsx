@@ -2,345 +2,429 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { motion, Variants } from 'framer-motion';
-import { ChevronRight, UploadCloud, Settings, Package } from 'lucide-react';
+import { motion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
+import { ChevronRight, ArrowRight, Printer, PenTool, Zap, CheckCircle } from 'lucide-react';
+import { products } from '../data/products';
 
-/* ─── Product showcase data ─────────────────────────────────────────── */
-const PRODUCTS = [
-  {
-    id: 'pla',
-    label: 'Material — PLA',
-    title: 'Precision\nPrototyping',
-    description:
-      'Our PLA prints deliver exceptional detail resolution, perfect for architectural models, visual prototypes, and intricate miniatures. Clean surface finish, consistent dimensions.',
-    cta: 'Order in PLA',
-    image: '/showcase_pla.png',
-    accent: '#e7e5e4', // stone-200
-  },
-  {
-    id: 'petg',
-    label: 'Material — PETG',
-    title: 'Built to\nLast',
-    description:
-      'PETG combines the ease of PLA with the toughness of engineering plastics. Ideal for functional brackets, jigs, housings, and parts that need to survive real-world use.',
-    cta: 'Order in PETG',
-    image: '/showcase_petg.png',
-    accent: '#d6d3d1', // stone-300
-  },
-  {
-    id: 'custom',
-    label: 'Service — Custom',
-    title: 'Your Vision,\nMade Real',
-    description:
-      'Have something specific in mind? We handle bespoke runs — personalised gifts, product mockups, replacement components, and anything in between. Just send us your file.',
-    cta: 'Request Custom Print',
-    image: '/showcase_custom.png',
-    accent: '#c4bfb9',
-  },
-];
+/* ─── Components ─────────────────────────────────────────── */
 
-const TiltImage = ({ src, alt, priority, active, accent }: { src: string, alt: string, priority: boolean, active: boolean, accent: string }) => {
+function Counter({ from, to, duration = 2 }: { from: number, to: number, duration?: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const count = useMotionValue(from);
+  const rounded = useTransform(count, (latest) => Math.round(latest));
+
+  useEffect(() => {
+    if (inView) {
+      const controls = animate(count, to, { duration, ease: "easeOut" });
+      return controls.stop;
+    }
+  }, [inView, count, to, duration]);
+
+  return <motion.span ref={ref}>{rounded}</motion.span>;
+}
+
+function Marquee() {
+  const brands = ["Bambu Lab", "Creality", "Prusa", "Elegoo", "Anycubic", "Raise3D"];
+  const duplicatedBrands = [...brands, ...brands, ...brands];
+
   return (
-    <div className="relative w-full aspect-[4/3] bg-gray-900 overflow-hidden">
-      <img
-        src={src}
-        alt={alt}
-        className={`w-full h-full object-cover origin-bottom transition-all duration-700 ease-out ${active ? 'scale-100' : 'scale-105'}`}
-        style={{
-          boxShadow: active ? `inset 0 -20px 40px -10px ${accent}20` : 'none'
-        }}
-      />
+    <div className="w-full overflow-hidden bg-[#fafaf9] py-8 border-y border-stone-200 mt-12 relative">
+      <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#fafaf9] to-transparent z-10"></div>
+      <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#fafaf9] to-transparent z-10"></div>
+
+      <div className="text-center mb-6">
+        <p className="text-xs font-semibold text-stone-500 tracking-[0.2em] uppercase">Powered by industry-leading 3D printing technology</p>
+      </div>
+
+      <motion.div
+        className="flex whitespace-nowrap"
+        animate={{ x: [0, -1035] }}
+        transition={{ ease: "linear", duration: 20, repeat: Infinity }}
+      >
+        {duplicatedBrands.map((brand, idx) => (
+          <div key={idx} className="flex-none mx-12 text-2xl md:text-3xl font-bold text-stone-200 uppercase tracking-widest">
+            {brand}
+          </div>
+        ))}
+      </motion.div>
     </div>
   );
-};
+}
 
-function ProductShowcase() {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  // Sync dot indicator with scroll position
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const onScroll = () => {
-      // Find the card closest to the center
-      const cards = Array.from(track.children) as HTMLElement[];
-      const trackCenter = track.scrollLeft + track.clientWidth / 2;
-
-      let closestIdx = 0;
-      let minDiff = Infinity;
-
-      cards.forEach((card, i) => {
-        const cardCenter = card.offsetLeft + card.clientWidth / 2;
-        const diff = Math.abs(trackCenter - cardCenter);
-        if (diff < minDiff) {
-          minDiff = diff;
-          closestIdx = i;
-        }
-      });
-      setActiveIndex(closestIdx);
-    };
-    track.addEventListener('scroll', onScroll, { passive: true });
-    // Initial calculation
-    onScroll();
-    return () => track.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const scrollTo = (idx: number) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const cards = Array.from(track.children) as HTMLElement[];
-    if (cards[idx]) {
-      const cardCenter = cards[idx].offsetLeft + cards[idx].clientWidth / 2;
-      const scrollPos = cardCenter - track.clientWidth / 2;
-      track.scrollTo({ left: scrollPos, behavior: 'smooth' });
+function ServicesSection() {
+  const services = [
+    {
+      id: "printing",
+      title: "Custom 3D Printing",
+      num: "01",
+      desc: "We will print your model on advanced equipment with high precision. Support PLA, PETG, ABS and other materials.",
+      img: "/services/3d_printing.jpg",
+      link: "/order",
+    },
+    {
+      id: "modelling",
+      title: "3D Modeling",
+      num: "02",
+      desc: "We can help you create a 3D model from scratch based on your drawing, photo or idea. We work in Blender, Fusion 360 and SolidWorks.",
+      img: "/services/3d_modeling.jpg",
+      link: "/modelling",
+    },
+    {
+      id: "prototyping",
+      title: "Prototyping",
+      num: "03",
+      desc: "We produce working prototypes and mockups for testing, presentations and startups. Fast, accurate, affordable.",
+      img: "/services/prototyping.jpg",
+      link: "/prototyping",
+    },
+    {
+      id: "postprocessing",
+      title: "Post-Processing And Painting",
+      num: "04",
+      desc: "Sanding, priming, painting and assembly of printed parts. Improving the appearance and functionality of the models.",
+      img: "/services/post_processing.jpg",
+      link: "/#contact",
     }
-  };
+  ];
 
   return (
-    <section className="relative w-full py-28 bg-transparent overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-50px' }}
-          className="space-y-4"
-        >
-          <p className="text-xs uppercase tracking-[0.18em] text-gray-400 font-semibold">
-            Materialize Your Vision
-          </p>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
-            Gallery & Capabilities
-          </h2>
-        </motion.div>
-
-        {/* Navigation arrows */}
-        <div className="flex gap-3 relative z-10">
-          <button
-            onClick={() => scrollTo(Math.max(0, activeIndex - 1))}
-            disabled={activeIndex === 0}
-            className="w-12 h-12 flex items-center justify-center rounded-full border border-gray-700 bg-gray-900 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 hover:pl-0.5 transition-all"
-            aria-label="Previous image"
-          >
-            <ChevronRight className="w-5 h-5 rotate-180" />
-          </button>
-          <button
-            onClick={() => scrollTo(Math.min(PRODUCTS.length - 1, activeIndex + 1))}
-            disabled={activeIndex === PRODUCTS.length - 1}
-            className="w-12 h-12 flex items-center justify-center rounded-full border border-gray-700 bg-gray-900 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 hover:pr-0.5 transition-all"
-            aria-label="Next image"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+    <section className="py-24 max-w-7xl mx-auto px-6" id="services">
+      <div className="mb-12">
+        <h2 className="text-4xl md:text-5xl font-bold text-stone-900 tracking-tight mb-4 uppercase">OUR <span className="text-[#4f6b43]">SERVICES</span></h2>
+        <p className="text-stone-500 text-lg max-w-2xl"><span className="text-[#4f6b43] font-medium">Custom solutions</span> for your ideas — from 3D model to finished product</p>
       </div>
 
-      {/* Scroll track */}
-      <div
-        ref={trackRef}
-        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none px-6 md:px-12 lg:px-[max(1.5rem,calc((100vw-80rem)/2))] gap-6 pb-8 pt-4 -mt-4 items-stretch"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {PRODUCTS.map((product, i) => (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: '-10%' }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            key={product.id}
-            className={`relative min-w-[85vw] sm:min-w-[65vw] md:min-w-[50vw] lg:min-w-[400px] max-w-xl snap-center flex flex-col bg-gray-950/80 rounded-3xl overflow-hidden border border-gray-800 transition-all duration-500 will-change-transform ${i === activeIndex ? 'shadow-[0_0_40px_rgba(168,85,247,0.15)] scale-100' : 'shadow-sm scale-[0.98]'
-              }`}
+      <div className="grid md:grid-cols-2 gap-6">
+        {services.map((svc, idx) => (
+          <Link
+            href={svc.link}
+            key={svc.id}
           >
-            {/* Image panel */}
-            <TiltImage
-              src={product.image}
-              alt={product.title.replace('\n', ' ')}
-              priority={i === 0}
-              active={i === activeIndex}
-              accent={product.accent}
-            />
-
-            {/* Text panel */}
-            <div className="flex flex-col p-8 sm:p-10 grow">
-              <p className="text-xs uppercase tracking-[0.18em] text-brand-secondary font-semibold mb-3">
-                {product.label}
-              </p>
-              <h3 className="text-2xl font-bold text-white mb-4 whitespace-pre-line">
-                {product.title}
-              </h3>
-              <p className="text-gray-400 text-sm leading-relaxed mb-8 grow">
-                {product.description}
-              </p>
-              <div className="flex items-center justify-between mt-auto">
-                <Link
-                  href="/order"
-                  className="btn-outline text-sm px-6 py-2.5"
-                >
-                  {product.cta}
-                </Link>
-                <div className="text-xs font-semibold text-gray-500 tabular-nums">
-                  {String(i + 1).padStart(2, '0')} / {String(PRODUCTS.length).padStart(2, '0')}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className="group flex flex-col p-8 rounded-2xl border border-stone-200 bg-[#F8F5F0] hover:border-stone-300 hover:shadow-[0_12px_40px_#4f6b4333] hover:-translate-y-1.5 transition-all duration-300 h-full cursor-pointer"
+            >
+              <div className="flex justify-between items-start mb-8">
+                <div className="w-32 h-20 md:w-40 md:h-24 rounded-xl overflow-hidden shadow-sm">
+                  <img src={svc.img} alt={svc.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <div className="text-4xl font-bold text-[#4f6b43]">
+                  {svc.num}
                 </div>
               </div>
-            </div>
-          </motion.div>
+              <h3 className="text-2xl font-bold text-stone-900 mb-3 group-hover:text-[#4f6b43] transition-colors">
+                {svc.title}
+              </h3>
+              <p className="text-stone-500 mb-2 leading-relaxed">{svc.desc}</p>
+            </motion.div>
+          </Link>
         ))}
-        {/* Spacer to allow final card to center */}
-        <div className="min-w-[max(0px,calc((100vw-1.5rem-400px)/2))] lg:min-w-[max(0px,calc((100vw-max(1.5rem,calc((100vw-80rem)/2))*2-400px)/2))] shrink-0" aria-hidden="true" />
       </div>
-
     </section>
   );
 }
 
-export default function Home() {
-  const fadeUp: Variants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
-  };
-
-  const staggerContainer: Variants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
-  };
+function PopularProducts() {
+  const [expanded, setExpanded] = useState(false);
+  const visibleProducts = expanded ? products : products.slice(0, 3);
 
   return (
-    <div className="flex flex-col w-full text-gray-100 bg-transparent">
-      {/* 1. Hero Section */}
-      <section className="relative flex items-center justify-center min-h-[75vh] px-6 text-center">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="max-w-4xl max-auto space-y-8 z-10"
-        >
-          <div className="inline-block py-1 px-3 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-secondary text-sm font-semibold tracking-wider uppercase mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] backdrop-blur-md">
-            Next-Gen Manufacturing
-          </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight drop-shadow-2xl">
-            Bring Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-secondary to-brand-primary">Ideas to Life</span> in 3D
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 font-light max-w-2xl mx-auto drop-shadow-md">
-            High-quality custom 3D printing at your fingertips. From prototype to production, we deliver excellence.
-          </p>
-          <div className="pt-8">
-            <Link href="/order" className="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4 shadow-[0_0_40px_rgba(168,85,247,0.4)]">
-              Start Printing
-              <ChevronRight className="w-5 h-5" />
+    <section className="py-24 max-w-7xl mx-auto px-6" id="popular-products">
+      <div className="mb-12 text-center">
+        <h2 className="text-4xl md:text-5xl font-bold text-stone-900 tracking-tight mb-4 uppercase">POPULAR <span className="text-[#4f6b43]">PRODUCTS</span></h2>
+        <p className="text-stone-500 text-lg">Our <span className="text-[#4f6b43] font-medium">best-selling</span> 3D creations loved by our customers.</p>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-6 mb-12">
+        {visibleProducts.map((prod, i) => (
+          <motion.div
+            key={prod.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: (i % 3) * 0.1 }}
+            className="group relative rounded-2xl overflow-hidden border border-stone-200 bg-[#F7F5F0] hover:border-stone-300 shadow-sm hover:shadow-[0_12px_40px_#4f6b4333] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col"
+          >
+            <div className="relative aspect-square overflow-hidden bg-white/50 rounded-t-2xl">
+              <img src={prod.img} alt={prod.title} className="w-full h-full object-cover transition-transform duration-700 ease-out" />
+              {prod.discount && (
+                <div className="absolute top-3 right-3 bg-amber-100 text-amber-800 text-[10px] uppercase font-bold px-2 py-1 rounded shadow-sm z-10">
+                  Sale
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 flex flex-col grow">
+              <div className="flex justify-between items-start mb-2 gap-2">
+                <h3 className="text-base font-bold text-stone-900 group-hover:text-[#4f6b43] transition-colors leading-tight">{prod.title}</h3>
+                <div className="flex flex-col items-end shrink-0">
+                  <span className="text-base font-bold text-stone-900 leading-none">{prod.price}</span>
+                  {prod.originalPrice && (
+                    <span className="text-[11px] font-medium text-stone-400 line-through mt-1">{prod.originalPrice}</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {prod.badges.slice(0, 3).map((badge, idx) => (
+                  <span key={idx} className={`text-[10px] font-bold px-2 py-0.5 rounded ${idx === 0 ? 'bg-[#ecf0e6] text-[#4f6b43]' : 'bg-white border border-stone-200 text-stone-500'}`}>
+                    {badge}
+                  </span>
+                ))}
+              </div>
+
+              <p className="text-[13px] text-stone-500 line-clamp-2 leading-relaxed grow">{prod.desc}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="flex justify-center gap-4 flex-wrap">
+        {!expanded ? (
+          <button
+            onClick={() => setExpanded(true)}
+            className="px-8 py-3 rounded-xl border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100 hover:text-stone-900 transition-colors"
+          >
+            See More
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => {
+                setExpanded(false);
+                // Scroll back to the top of the section slightly when collapsing
+                const el = document.getElementById("popular-products");
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-8 py-3 rounded-xl border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100 hover:text-stone-900 transition-colors"
+            >
+              Show Less
+            </button>
+            <Link href="/order" className="px-8 py-3 rounded-xl bg-stone-900 text-white font-semibold hover:-translate-y-0.5 hover:shadow-lg shadow-md transition-all">
+              Order a Custom Part
             </Link>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function StatsSection() {
+  return (
+    <section className="py-20 border-y border-stone-200 bg-stone-50">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-10 text-center">
+        <div>
+          <div className="text-5xl md:text-6xl font-black text-[#4f6b43] mb-2 tracking-tighter">
+            <Counter from={0} to={500} />+
           </div>
+          <div className="text-sm font-bold text-stone-500 uppercase tracking-widest">Prints Completed</div>
+        </div>
+        <div>
+          <div className="text-5xl md:text-6xl font-black text-[#4f6b43] mb-2 tracking-tighter">
+            <Counter from={0} to={50} />+
+          </div>
+          <div className="text-sm font-bold text-stone-500 uppercase tracking-widest">Custom Projects</div>
+        </div>
+        <div>
+          <div className="text-5xl md:text-6xl font-black text-[#4f6b43] mb-2 tracking-tighter">
+            <Counter from={0} to={10} />+
+          </div>
+          <div className="text-sm font-bold text-stone-500 uppercase tracking-widest">Material Options</div>
+        </div>
+        <div>
+          <div className="text-5xl md:text-6xl font-black text-[#4f6b43] mb-2 tracking-tighter">
+            <Counter from={0} to={99} />%
+          </div>
+          <div className="text-sm font-bold text-stone-500 uppercase tracking-widest">Satisfaction</div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DotRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-1.5">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className={`w-2.5 h-2.5 rounded-full transition-colors ${i < rating ? 'bg-[#4f6b43]' : 'bg-stone-200'}`} />
+      ))}
+    </div>
+  );
+}
+
+function MaterialsSection() {
+  return (
+    <section className="py-32 max-w-7xl mx-auto px-6 overflow-visible" id="materials">
+      <div className="text-center mb-20">
+        <h2 className="text-4xl md:text-5xl font-bold text-stone-900 tracking-tight mb-4 uppercase">OUR <span className="text-[#4f6b43]">MATERIALS</span></h2>
+        <p className="text-stone-500 text-lg max-w-2xl mx-auto">We offer premium materials designed for strength, precision, and flexibility.</p>
+      </div>
+
+      <div className="flex justify-center items-center h-[380px] w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="group relative w-[260px] h-[340px] flex justify-center items-center cursor-pointer perspective-[1200px]"
+        >
+
+          {/* Card 1 (Far Left) - TPU */}
+          <div className="absolute inset-0 bg-white border border-stone-200 rounded-[2rem] shadow-sm flex flex-col justify-center items-center transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] z-10 -rotate-[8deg] -translate-x-5 translate-y-2 group-hover:-rotate-12 group-hover:-translate-x-[150%] group-hover:translate-y-8 origin-bottom group-hover:shadow-[0_12px_40px_#4f6b4315]">
+            <span className="text-[10px] font-bold uppercase tracking-widest bg-stone-100 text-stone-400 px-3 py-1 rounded-full mb-3">Coming Soon</span>
+            <h3 className="text-3xl font-black text-stone-300 tracking-tight">TPU</h3>
+          </div>
+
+          {/* Card 2 (Mid Left) - PETG */}
+          <div className="absolute inset-0 bg-[#f4f3f1] border border-stone-200 rounded-[2rem] shadow-sm flex flex-col justify-center items-center transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] z-20 -rotate-[4deg] -translate-x-2.5 translate-y-1 group-hover:-rotate-6 group-hover:-translate-x-[80%] group-hover:translate-y-3 origin-bottom group-hover:shadow-[0_12px_40px_#4f6b4315]">
+            <h3 className="text-3xl font-black text-stone-800 tracking-tight">PETG</h3>
+          </div>
+
+          {/* Card 4 (Far Right) - ABS */}
+          <div className="absolute inset-0 bg-white border border-stone-200 rounded-[2rem] shadow-sm flex flex-col justify-center items-center transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] z-10 rotate-[8deg] translate-x-5 translate-y-2 group-hover:rotate-12 group-hover:translate-x-[150%] group-hover:translate-y-8 origin-bottom group-hover:shadow-[0_12px_40px_#4f6b4315]">
+            <span className="text-[10px] font-bold uppercase tracking-widest bg-stone-100 text-stone-400 px-3 py-1 rounded-full mb-3">Coming Soon</span>
+            <h3 className="text-3xl font-black text-stone-300 tracking-tight">ABS</h3>
+          </div>
+
+          {/* Card 3 (Mid Right) - PLA */}
+          <div className="absolute inset-0 bg-[#f4f3f1] border border-stone-200 rounded-[2rem] shadow-sm flex flex-col justify-center items-center transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] z-20 rotate-[4deg] translate-x-2.5 translate-y-1 group-hover:rotate-6 group-hover:translate-x-[80%] group-hover:translate-y-3 origin-bottom group-hover:shadow-[0_12px_40px_#4f6b4315]">
+            <h3 className="text-3xl font-black text-stone-800 tracking-tight">PLA</h3>
+          </div>
+
+          {/* Center Card (Hover to Explore) */}
+          <div className="absolute inset-0 bg-[#4f6b43] border border-[#3c5233] rounded-[2rem] shadow-lg flex flex-col justify-center items-center transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] z-30 group-hover:scale-105 group-hover:shadow-[0_20px_60px_#4f6b4340] group-hover:-translate-y-4">
+            <h3 className="text-3xl font-black text-white mb-6 text-center px-4 tracking-tight">Materials</h3>
+            <div className="bg-white/10 text-white text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-full backdrop-blur-md border border-white/20 group-hover:bg-white/20 transition-colors shadow-sm">
+              Hover to explore
+            </div>
+          </div>
+
         </motion.div>
-      </section>
+      </div>
 
-      {/* Product Showcase */}
-      <ProductShowcase />
+      {/* Material Comparison Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.2 }}
+        className="mt-32 max-w-4xl mx-auto"
+      >
+        <div className="text-center mb-10">
+          <h3 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight uppercase">FIND YOUR <span className="text-[#4f6b43]">MATERIAL</span></h3>
+        </div>
 
-      {/* 2. How It Works */}
-      <section className="py-24 bg-transparent border-t border-brand-primary/20" id="how-it-works">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="bg-white/30 backdrop-blur-xl border border-stone-200 rounded-3xl p-8 md:p-12 shadow-sm overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[500px]">
+            <thead>
+              <tr>
+                <th className="pb-6 w-1/4"></th>
+                <th className="pb-6 w-1/4 text-center font-bold text-xl text-stone-900">PLA</th>
+                <th className="pb-6 w-1/4 text-center font-bold text-xl text-stone-900">PETG</th>
+                <th className="pb-6 w-1/4 text-center font-bold text-xl text-stone-900">TPU</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              <tr className="hover:bg-stone-50/50 transition-colors">
+                <td className="py-6 font-semibold text-stone-700 pl-4">Strength</td>
+                <td className="py-"><div className="flex justify-center"><DotRating rating={3} /></div></td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={4} /></div></td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={1} /></div></td>
+              </tr>
+              <tr className="hover:bg-stone-50/50 transition-colors">
+                <td className="py-6 font-semibold text-stone-700 pl-4">Flexibility</td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={1} /></div></td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={2} /></div></td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={5} /></div></td>
+              </tr>
+              <tr className="hover:bg-stone-50/50 transition-colors">
+                <td className="py-6 font-semibold text-stone-700 pl-4">Durability</td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={3} /></div></td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={4} /></div></td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={2} /></div></td>
+              </tr>
+              <tr className="hover:bg-stone-50/50 transition-colors">
+                <td className="py-6 font-semibold text-stone-700 pl-4">Ease of print</td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={5} /></div></td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={4} /></div></td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={3} /></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+/* ─── Main Page ─────────────────────────────────────────── */
+
+export default function Home() {
+  return (
+    <div className="flex flex-col w-full text-stone-900 bg-transparent overflow-hidden">
+
+      {/* 1. Hero Section */}
+      <section className="relative min-h-[85vh] flex items-center pt-10">
+        <div className="max-w-7xl mx-auto px-6 w-full grid lg:grid-cols-2 gap-12 items-center">
+
           <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeUp}
-            className="text-center space-y-4 mb-20"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="space-y-8 z-10"
           >
-            <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">How It Works</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg pt-2">Three simple steps to hold your creativity in your hands.</p>
+            <h1 className="text-5xl md:text-7xl lg:text-[5rem] font-extrabold tracking-tight leading-[1.1]">
+              TURN YOUR <span className="text-[#4f6b43] drop-shadow-sm">IDEAS</span> <br />
+              INTO REALITY.
+            </h1>
+            <p className="text-xl text-stone-500 font-light max-w-xl">
+              From digital models to physical parts, LayerLabs delivers precision 3D printing for creators, engineers, makers and businesses.
+            </p>
+            <div className="flex flex-wrap items-center gap-4 pt-4">
+              <Link href="/order" className="btn-primary flex items-center gap-2">
+                Get a Quote <ArrowRight className="w-5 h-5" />
+              </Link>
+              <Link href="/#services" className="px-6 py-3 font-semibold text-stone-900 hover:text-[#4f6b43] transition-colors border-b border-transparent hover:border-[#4f6b43]">
+                Explore Services
+              </Link>
+            </div>
           </motion.div>
 
           <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="grid md:grid-cols-3 gap-10 relative z-10"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="relative h-[400px] lg:h-[600px] w-full lg:scale-110 xl:scale-125 z-0 flex items-center justify-center"
           >
-            {/* Step 1 */}
-            <motion.div variants={fadeUp} className="card bg-gray-950/80 p-10 flex flex-col items-center text-center space-y-5 hover:-translate-y-2 hover:border-brand-secondary transition-all duration-300 hover:shadow-[0_10px_40px_rgba(192,132,252,0.15)]">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-brand-secondary/20 to-transparent flex items-center justify-center text-brand-secondary mb-4 ring-1 ring-brand-secondary/30 shadow-[0_0_30px_rgba(192,132,252,0.15)]">
-                <UploadCloud className="w-12 h-12" />
-              </div>
-              <h3 className="text-2xl font-bold">1. Upload your STL</h3>
-              <p className="text-gray-400 text-base leading-relaxed">Drag and drop your 3D model. We instantly visualize your creation right in your browser securely.</p>
-            </motion.div>
-
-            {/* Step 2 */}
-            <motion.div variants={fadeUp} className="card bg-gray-950/80 p-10 flex flex-col items-center text-center space-y-5 hover:-translate-y-2 hover:border-brand-primary transition-all duration-300 hover:shadow-[0_10px_40px_rgba(168,85,247,0.15)]">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-brand-primary/20 to-transparent flex items-center justify-center text-brand-primary mb-4 ring-1 ring-brand-primary/30 shadow-[0_0_30px_rgba(168,85,247,0.15)]">
-                <Settings className="w-12 h-12" />
-              </div>
-              <h3 className="text-2xl font-bold">2. Configure Print</h3>
-              <p className="text-gray-400 text-base leading-relaxed">Select the perfect material, infill, and finishing for your project to get an approx weight estimate.</p>
-            </motion.div>
-
-            {/* Step 3 */}
-            <motion.div variants={fadeUp} className="card bg-gray-950/80 p-10 flex flex-col items-center text-center space-y-5 hover:-translate-y-2 hover:border-purple-500 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(147,51,234,0.15)]">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-purple-500/20 to-transparent flex items-center justify-center text-purple-400 mb-4 ring-1 ring-purple-500/30 shadow-[0_0_30px_rgba(147,51,234,0.15)]">
-                <Package className="w-12 h-12" />
-              </div>
-              <h3 className="text-2xl font-bold">3. We print & deliver</h3>
-              <p className="text-gray-400 text-base leading-relaxed">We use state-of-the-art 3D printers to bring your ideas to life.</p>
-            </motion.div>
+            <motion.img
+              src="/3dmodelimage.png"
+              alt="Detailed 3D printed sculpture"
+              className="relative z-10 w-full h-full object-contain drop-shadow-xl hover:drop-shadow-[0_4px_24px_rgba(79,107,67,0.2)] transition-all duration-500"
+            />
           </motion.div>
+
         </div>
       </section>
 
+      {/* 2. Marquee */}
+      <Marquee />
 
-      {/* 3. Materials & Pricing */}
-      <section className="py-24 bg-transparent" id="materials">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeUp}
-            className="text-center space-y-4 mb-16"
-          >
-            <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">Materials </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg pt-2">We offer premium materials designed for strength, precision, and flexibility.</p>
-          </motion.div>
+      {/* 3. Our Services */}
+      <ServicesSection />
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-center relative z-10"
-          >
-            <motion.div variants={fadeUp} className="card bg-gray-950/80 p-8 border-brand-secondary/20 hover:border-brand-secondary transition-colors">
-              <h3 className="text-2xl font-bold mb-2 text-white">PLA</h3>
-              <p className="text-brand-secondary font-semibold text-xl mb-4"><span className="text-sm font-normal text-gray-500"></span></p>
-              <p className="text-gray-400 text-sm mb-6 h-16">Ideal for detailed prototypes, structural components, and miniatures.</p>
-            </motion.div>
+      {/* 4. Popular Products */}
+      <PopularProducts />
 
-            <motion.div variants={fadeUp} className="card bg-gray-950/80 p-8 border-brand-primary/20 hover:border-brand-primary transition-colors">
-              <h3 className="text-2xl font-bold mb-2 text-white">PETG</h3>
-              <p className="text-brand-primary font-semibold text-xl mb-4"><span className="text-sm font-normal text-gray-500"></span></p>
-              <p className="text-gray-400 text-sm mb-6 h-16">Durable, strong layer adhesion. Great for mechanical parts.</p>
-            </motion.div>
+      {/* Materials Section */}
+      <MaterialsSection />
 
-            {/* </motion.div> <motion.div variants={fadeUp} className="card bg-gray-950/80 p-8 border-purple-500/20 hover:border-purple-500 transition-colors"> */}
-            <motion.div variants={fadeUp} className="card bg-gray-950/40 p-8 opacity-60 grayscale border-gray-800">
-              <div className="flex justify-center mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider bg-gray-900 text-gray-300 px-3 py-1 rounded-full border border-gray-800">Coming Soon</span>
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-gray-400 mt-2">TPU</h3>
-              <p className="text-purple-400 font-semibold text-xl mb-4"><span className="text-sm font-normal text-gray-500"></span></p>
-              <p className="text-gray-400 text-sm mb-6 h-16">Flexible, rubber-like material perfect for wearables and seals.</p>
-            </motion.div>
-
-            <motion.div variants={fadeUp} className="card bg-gray-950/40 p-8 opacity-60 grayscale border-gray-800">
-              <div className="flex justify-center mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider bg-gray-900 text-gray-300 px-3 py-1 rounded-full border border-gray-800">Coming Soon</span>
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-gray-400 mt-2">ABS</h3>
-              <p className="text-gray-500 font-medium text-lg mb-4"><span className="text-sm font-normal text-gray-600"></span></p>
-              <p className="text-gray-500 text-sm h-16">High impact resistance and high temperature tolerance.</p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      {/* 5. Stats Section */}
+      <StatsSection />
 
     </div>
   );

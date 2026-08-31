@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar';
 import ContactFooter from '@/components/ContactFooter';
 import InteractiveBackground from '@/components/InteractiveBackground';
 import ScrollProgress from '@/components/ScrollProgress';
-
+import CustomCursor from '@/components/CustomCursor';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <body className={`${inter.className} min-h-screen bg-[#e8e4db] text-stone-900 flex flex-col relative antialiased`}>
+        <CustomCursor />
         <ScrollProgress />
         <InteractiveBackground />
         <Navbar />

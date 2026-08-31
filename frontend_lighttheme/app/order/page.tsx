@@ -40,8 +40,8 @@ export default function OrderPage() {
     address: '',
     material: 'PLA',
     color: 'Grey',
-    infillDensity: "Default",
-    infillPattern: "Default",
+    infillDensity: "default",
+    infillPattern: "default",
     quantity: 1,
     comments: '',
   });
@@ -57,14 +57,14 @@ export default function OrderPage() {
   ];
 
   const materialColors: Record<string, string[]> = {
-    PLA: ['Red', 'Yellow', 'Blue', 'White', 'Black'],
-    PETG: ['Black', 'Orange'],
-    TPU: ['Black', 'White', 'Clear'], // Add more colors as needed
+    PLA: ['Grey'],
+    PETG: ['Black'],
+    TPU: ['Black', 'White', 'Clear'],
     ABS: ['Black'],
   };
 
-  const infillDensities = ["Default", '10%', '15%', '20%', '40%', '60%', '80%', '100%'];
-  const infillPatterns = ["Default", 'Grid', 'Gyroid', 'Triangles', 'Cubic'];
+  const infillDensities = ["default", '10%', '15%', '20%', '40%', '60%', '80%', '100%'];
+  const infillPatterns = ["default", 'Grid', 'Gyroid', 'Triangles', 'Cubic'];
 
   // Handlers
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
@@ -116,7 +116,6 @@ export default function OrderPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!file) {
@@ -160,7 +159,7 @@ export default function OrderPage() {
         setFileName('');
         setVolumeMm3(0);
         setFormData({
-          name: '', email: '', phone: '', address: '', material: 'PLA', color: 'Grey', infillDensity: "Default", infillPattern: "Default", quantity: 1, comments: ''
+          name: '', email: '', phone: '', address: '', material: 'PLA', color: 'Grey', infillDensity: "default", infillPattern: "default", quantity: 1, comments: ''
         });
       } else {
         try {
@@ -182,35 +181,39 @@ export default function OrderPage() {
   };
 
   return (
-    <div className="flex-1 w-full bg-transparent py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex-1 w-full py-12 px-4 sm:px-6 lg:px-8 bg-transparent relative">
       <div className="max-w-6xl mx-auto space-y-8 relative z-20">
 
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-secondary to-[#4f6b43]">
-            Upload & Configure
+        {/* Page header */}
+        <div className="text-center space-y-2 pb-2">
+          <p className="text-xs uppercase tracking-[0.18em] text-stone-400 font-semibold">3D Printing</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-stone-900 tracking-tight">
+            Upload &amp; Configure
           </h1>
           <p className="text-stone-500">Configure your print settings to get started.</p>
         </div>
 
         {submitSuccess ? (
-          <div className="max-w-2xl mx-auto space-y-6">
-            {/* Header */}
-            <div className="card bg-white/60 backdrop-blur-xl p-8 text-center border-stone-200 shadow-sm">
+          <div className="max-w-2xl mx-auto space-y-5">
+            {/* Success header */}
+            <div className="card p-8 text-center">
               <div className="relative inline-flex items-center justify-center mb-5">
-                <div className="absolute w-24 h-24 bg-[#4f6b43]/20 rounded-full blur-xl animate-pulse" />
-                <CheckCircle className="w-16 h-16 text-[#4f6b43] relative z-10" />
+                <div className="absolute w-20 h-20 bg-stone-100 rounded-full" />
+                <CheckCircle className="w-14 h-14 text-stone-900 relative z-10" />
               </div>
-              <h2 className="text-3xl font-bold mb-2 text-stone-900">Order Received! 🎉</h2>
-              <p className="text-stone-500 text-base leading-relaxed">Your 3D print request has been submitted. We&apos;ll review your file and contact you with a personalised quote soon.</p>
+              <h2 className="text-3xl font-extrabold mb-2 text-stone-900 tracking-tight">Order Received!</h2>
+              <p className="text-stone-500 text-base leading-relaxed">
+                Your 3D print request has been submitted. We&apos;ll review your file and contact you with a personalised quote soon.
+              </p>
             </div>
 
             {/* Order Summary Card */}
             {submittedOrder && (
-              <div className="card bg-white/60 backdrop-blur-xl border-stone-200 shadow-sm p-6 space-y-4">
-                <p className="text-xs text-[#4f6b43] uppercase tracking-widest font-bold mb-2">Order Summary</p>
-                <div className="divide-y divide-stone-200 text-sm">
+              <div className="card p-6 space-y-4">
+                <p className="text-xs text-stone-400 uppercase tracking-widest font-semibold mb-2">Order Summary</p>
+                <div className="divide-y divide-stone-100 text-sm">
                   {([
-                    ['Order ID', <span key="id" className="font-mono text-[#4f6b43] text-xs break-all">{submittedOrder._id}</span>],
+                    ['Order ID', <span key="id" className="font-mono text-stone-600 text-xs break-all">{submittedOrder._id}</span>],
                     ['File', submittedOrder.stlFileName],
                     ['Customer', submittedOrder.name],
                     ['Email', submittedOrder.email],
@@ -226,7 +229,7 @@ export default function OrderPage() {
                   ] as [string, React.ReactNode][]).map(([label, value]) => (
                     <div key={label as string} className="flex justify-between gap-4 py-2.5">
                       <span className="text-stone-400 shrink-0 w-36">{label}</span>
-                      <span className="text-stone-900 text-right">{value}</span>
+                      <span className="text-stone-700 text-right">{value}</span>
                     </div>
                   ))}
                 </div>
@@ -234,8 +237,9 @@ export default function OrderPage() {
             )}
 
             {/* Footer note */}
-            <div className="bg-[#ecf0e6] border border-[#4f6b43]/30 rounded-xl px-5 py-4 text-sm text-stone-700 leading-relaxed shadow-sm">
-              ⏰ <span className="font-semibold text-stone-900">Note:</span> Your uploaded STL file is stored securely in the cloud for <span className="font-semibold text-stone-900">24 hours</span>. We&apos;ll download and process it within that window.
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 text-sm text-stone-600 leading-relaxed">
+              ⏰ <span className="font-semibold text-stone-800">Note:</span> Your uploaded STL file is stored securely in the cloud for{' '}
+              <span className="font-semibold text-stone-800">24 hours</span>. We&apos;ll download and process it within that window.
             </div>
 
             <div className="text-center">
@@ -251,21 +255,22 @@ export default function OrderPage() {
           <div className="grid lg:grid-cols-2 gap-8 items-start">
 
             {/* Left Column: Viewer & Upload */}
-            <div className="space-y-6">
-              <div className="card bg-white/60 backdrop-blur-xl p-6 border-stone-200 shadow-sm">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <FileType2 className="text-brand-secondary" /> 1. Upload Model
+            <div className="space-y-5">
+              <div className="card p-6">
+                <h2 className="text-base font-bold mb-4 flex items-center gap-2 text-stone-900">
+                  <FileType2 className="text-stone-500 w-5 h-5" />
+                  1. Upload Model
                 </h2>
 
                 {/* Drag Drop Zone */}
                 <div
                   className={`
-                    border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300
+                    border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200
                     ${isDragging
-                      ? 'border-[#4f6b43] bg-[#ecf0e6] scale-[1.02] shadow-[0_0_50px_rgba(79,107,67,0.15)]'
+                      ? 'border-[#4f6b43] bg-[#ecf0e6] text-[#4f6b43] scale-[1.01]'
                       : file
-                        ? 'border-[#4f6b43]/50 bg-[#4f6b43]/5 hover:bg-[#4f6b43]/10'
-                        : 'border-stone-200 hover:border-stone-400 hover:bg-stone-50'
+                        ? 'border-[#8b7355]/40 bg-white/40 hover:bg-white/60'
+                        : 'border-white hover:border-[#8b7355]/40 hover:bg-white/50 bg-white/20'
                     }
                   `}
                   onDragEnter={handleDragEnter}
@@ -281,17 +286,17 @@ export default function OrderPage() {
                     ref={fileInputRef}
                     onChange={handleFileSelect}
                   />
-                  <UploadCloud className={`w-14 h-14 mx-auto mb-4 transition-all duration-300 ${isDragging ? 'text-[#4f6b43] scale-110 drop-shadow-[0_0_15px_rgba(79,107,67,0.4)]' : 'text-stone-300'}`} />
-                  <p className={`text-lg font-medium transition-colors ${isDragging ? 'text-[#4f6b43]' : 'text-stone-700'}`}>
-                    {isDragging ? 'Drop your .STL file right here!' : file ? 'File selected (Click to replace)' : 'Drag & Drop your .STL file here'}
+                  <UploadCloud className={`w-12 h-12 mx-auto mb-3 transition-all duration-200 ${isDragging ? 'text-[#4f6b43] scale-110' : 'text-stone-400'}`} />
+                  <p className={`text-base font-medium transition-colors ${isDragging ? 'text-[#4f6b43]' : 'text-stone-600'}`}>
+                    {isDragging ? 'Drop your .STL file right here!' : file ? 'File selected — click to replace' : 'Drag & Drop your .STL file here'}
                   </p>
-                  <p className="text-sm text-stone-400 mt-2">or click to browse from your computer</p>
+                  <p className="text-sm text-stone-400 mt-1">or click to browse from your computer</p>
                 </div>
 
                 {/* File Name Override */}
                 {file && (
-                  <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <label className="block text-sm font-medium text-stone-500 mb-1">Model Name</label>
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-stone-600 mb-1">Model Name</label>
                     <input
                       type="text"
                       className="input-field"
@@ -303,29 +308,31 @@ export default function OrderPage() {
                 )}
               </div>
 
-              {/* Viewer */}
-              <div className="card bg-white/60 backdrop-blur-xl p-6 border-stone-200 flex flex-col items-center shadow-sm">
-                <h2 className="text-xl font-bold mb-4 w-full text-left flex items-center gap-2">
-                  <span className="text-[#4f6b43]">🎮</span> 2. 3D Preview
+              {/* 3D Viewer */}
+              <div className="card p-6 flex flex-col items-center">
+                <h2 className="text-base font-bold mb-4 w-full text-left flex items-center gap-2 text-stone-900">
+                  <span className="text-stone-400">◈</span> 2. 3D Preview
                 </h2>
-                <div className="w-full h-[400px] mb-4">
+                <div className="w-full h-[380px] mb-4">
                   <STLViewer file={file} onVolumeCalculated={setVolumeMm3} />
                 </div>
                 {file && volumeMm3 > 0 && (
-                  <div className="w-full bg-white border border-stone-200 shadow-sm p-4 rounded-lg flex items-center gap-4 mt-2 animate-in fade-in zoom-in-95 duration-500">
+                  <div className="w-full bg-white/50 border border-white/60 p-4 rounded-xl flex items-center gap-4 mt-1">
                     <div>
-                      <p className="text-sm text-stone-400">Model Volume</p>
-                      <p className="font-bold text-brand-secondary text-2xl drop-shadow-[0_0_15px_rgba(192,132,252,0.4)]">{Math.round(volumeMm3).toLocaleString()} mm³</p>
+                      <p className="text-sm text-stone-500">Model Volume</p>
+                      <p className="font-bold text-stone-900 text-2xl tracking-tight">{Math.round(volumeMm3).toLocaleString()} mm³</p>
                     </div>
                   </div>
                 )}
                 {file && (
                   <div className="w-full mt-4 space-y-2">
-                    <p className="text-xs text-stone-500 bg-stone-50 p-3 rounded-md border border-stone-200 leading-relaxed">
-                      <span className="text-amber-500 font-bold">⚠️ Note:</span> We do not provide material weight because it depends on various factors like <span className="text-stone-900 font-semibold">infill, wall loops, material and supports</span> — which can only be accurately determined by your slicer software.
+                    <p className="text-xs text-stone-600 bg-[#f5f1e8] border border-[#e3dcc8] p-3 rounded-xl leading-relaxed">
+                      <span className="text-[#8b7355] font-semibold">⚠ Note:</span> We do not provide material weight because it depends on various factors like{' '}
+                      <span className="text-stone-700 font-medium">infill, wall loops, material and supports</span>{' '}
+                      — which can only be accurately determined by your slicer software.
                     </p>
-                    <p className="text-sm font-semibold text-stone-600 bg-[#ecf0e6] border border-[#4f6b43]/40 py-2 px-3 rounded-md text-center shadow-sm flex justify-center items-center gap-2">
-                      <span>✨</span> A final, precise quote will be calculated and sent to you later.
+                    <p className="text-sm font-medium text-[#6b6255] bg-white/50 border border-white/60 py-2 px-3 rounded-xl text-center flex justify-center items-center gap-2">
+                      <span>✦</span> A final, precise quote will be calculated and sent to you later.
                     </p>
                   </div>
                 )}
@@ -333,25 +340,29 @@ export default function OrderPage() {
             </div>
 
             {/* Right Column: Form */}
-            <form onSubmit={handleSubmit} className="card bg-white/60 backdrop-blur-xl p-8 border-stone-200 shadow-sm space-y-8">
+            <form onSubmit={handleSubmit} className="card p-8 space-y-8 bg-white/60">
 
               {/* Settings Section */}
               <section>
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 border-b border-stone-200 pb-2">
-                  <span className="text-brand-secondary">⚙️</span> 3. Configuration
+                <h2 className="text-base font-bold mb-5 flex items-center gap-2 text-stone-900 border-b border-stone-100 pb-3">
+                  <span className="text-stone-400">⚙</span> 3. Configuration
                 </h2>
                 <div className="space-y-5">
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid md:grid-cols-2 gap-5">
+                    {/* Material */}
                     <div>
-                      <label className="block text-sm font-medium text-stone-500 mb-2">Material</label>
-                      <div className="grid grid-cols-2 gap-3">
+                      <label className="block text-sm font-medium text-stone-600 mb-2">Material</label>
+                      <div className="grid grid-cols-2 gap-2.5">
                         {materials.map(mat => (
                           <label
                             key={mat.id}
                             className={`
-                              border rounded-lg p-3 text-center cursor-pointer transition-all bg-white
-                              ${mat.disabled ? 'opacity-50 cursor-not-allowed border-stone-200' : 'hover:border-[#4f6b43] border-stone-200 hover:shadow-sm'}
-                              ${formData.material === mat.id ? 'border-[#4f6b43] bg-[#ecf0e6] ring-1 ring-[#4f6b43] shadow-sm' : ''}
+                              border rounded-xl p-3 text-center cursor-pointer transition-all
+                              ${mat.disabled ? 'opacity-40 cursor-not-allowed border-white/50 bg-white/30' :
+                                formData.material === mat.id
+                                  ? 'border-[#4f6b43] bg-[#4f6b43] text-white shadow-[0_4px_12px_rgba(79,107,67,0.2)]'
+                                  : 'border-white/60 bg-white/50 hover:border-[#8b7355]/40 hover:bg-white/80'
+                              }
                             `}
                           >
                             <input
@@ -370,30 +381,35 @@ export default function OrderPage() {
                               }}
                               className="hidden"
                             />
-                            <span className="font-semibold text-stone-900">{mat.name}</span>
+                            <span className={`font-semibold text-sm ${formData.material === mat.id ? 'text-white' : 'text-stone-700'}`}>
+                              {mat.name}
+                            </span>
                           </label>
                         ))}
                       </div>
                     </div>
 
+                    {/* Color */}
                     <div>
-                      <label className="block text-sm font-medium text-stone-500 mb-2">Color</label>
+                      <label className="block text-sm font-medium text-stone-600 mb-2">Color</label>
                       <select
                         name="color"
                         value={formData.color}
                         onChange={handleInputChange}
-                        className="input-field cursor-pointer h-[50px] md:mt-0"
+                        className="input-field cursor-pointer h-[50px]"
                       >
                         {materialColors[formData.material]?.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
                   </div>
-                  <p className="text-xs text-stone-500 mb-3">
-                    Not sure about these settings? Leave them as default and we’ll optimize the print for you.
+
+                  <p className="text-xs text-stone-400">
+                    Not sure about these settings? Leave them as default and we&apos;ll optimise the print for you.
                   </p>
+
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-stone-500 mb-1">Quantity</label>
+                      <label className="block text-sm font-medium text-stone-600 mb-1">Quantity</label>
                       <input
                         type="number"
                         name="quantity"
@@ -404,7 +420,7 @@ export default function OrderPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-stone-500 mb-1">Infill Density</label>
+                      <label className="block text-sm font-medium text-stone-600 mb-1">Infill Density</label>
                       <select
                         name="infillDensity"
                         value={formData.infillDensity}
@@ -415,7 +431,7 @@ export default function OrderPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-stone-500 mb-1">Infill Pattern</label>
+                      <label className="block text-sm font-medium text-stone-600 mb-1">Infill Pattern</label>
                       <select
                         name="infillPattern"
                         value={formData.infillPattern}
@@ -431,46 +447,46 @@ export default function OrderPage() {
 
               {/* Details Section */}
               <section>
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 border-b border-stone-200 pb-2">
-                  <span className="text-brand-primary">👤</span> 4. Personal Details
+                <h2 className="text-base font-bold mb-5 flex items-center gap-2 text-stone-900 border-b border-stone-100 pb-3">
+                  <span className="text-stone-400">◎</span> 4. Personal Details
                 </h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-stone-500 mb-1">Name</label>
+                      <label className="block text-sm font-medium text-stone-600 mb-1">Name</label>
                       <input required type="text" name="name" value={formData.name} onChange={handleInputChange} className="input-field" placeholder="John Doe" />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-stone-500 mb-1">Phone Number</label>
+                      <label className="block text-sm font-medium text-stone-600 mb-1">Phone Number</label>
                       <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="input-field" placeholder="+91 98765 43210" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-500 mb-1">Email</label>
+                    <label className="block text-sm font-medium text-stone-600 mb-1">Email</label>
                     <input required type="email" name="email" value={formData.email} onChange={handleInputChange} className="input-field" placeholder="john@example.com" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-500 mb-1">Delivery Address</label>
+                    <label className="block text-sm font-medium text-stone-600 mb-1">Delivery Address</label>
                     <textarea required name="address" value={formData.address} onChange={handleInputChange} className="input-field min-h-[80px]" placeholder="Full shipping address..." />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-500 mb-1">
-                      If you have any special requests or goals for your print, let us know.
+                    <label className="block text-sm font-medium text-stone-600 mb-1">
+                      Special requests or goals for your print
                     </label>
                     <textarea
                       name="comments"
                       value={formData.comments}
                       onChange={handleInputChange}
-                      className="input-field min-h-[120px] text-sm placeholder:text-xs placeholder:text-stone-400 leading-relaxed"
-                      placeholder={`You can mention specific settings you'd like adjusted (e.g., more walls, reduced supports), or your main priority—strength, speed, surface finish, or cost. If you’re unsure, just leave it blank and we’ll optimize the print for you automatically.`}
+                      className="input-field min-h-[110px] text-sm placeholder:text-xs leading-relaxed"
+                      placeholder={`Mention specific settings (e.g., more walls, reduced supports), or your main priority — strength, speed, surface finish, or cost. Leave blank and we'll optimise for you.`}
                     />
                   </div>
                 </div>
               </section>
 
               {submitError && (
-                <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 flex items-center gap-3 text-red-600">
-                  <AlertCircle className="w-6 h-6 shrink-0" />
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 text-red-600">
+                  <AlertCircle className="w-5 h-5 shrink-0" />
                   <p className="text-sm">{submitError}</p>
                 </div>
               )}
@@ -478,7 +494,7 @@ export default function OrderPage() {
               <button
                 type="submit"
                 disabled={isUploading || !file}
-                className="btn-primary w-full flex justify-center items-center py-4"
+                className="btn-primary w-full flex justify-center items-center py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isUploading ? (
                   <div className="flex items-center gap-2">
@@ -492,12 +508,11 @@ export default function OrderPage() {
                   'Submit Order Request'
                 )}
               </button>
-              <p className="text-sm text-stone-500 mt-3 text-center">
-                Having trouble submitting? You can place your order by messaging us via the contact details below.
+              <p className="text-sm text-stone-400 text-center">
+                Having trouble? Place your order via the contact details in the footer.
               </p>
 
             </form>
-
           </div>
         )}
 

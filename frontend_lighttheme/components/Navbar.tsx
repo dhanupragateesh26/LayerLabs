@@ -6,7 +6,9 @@ import { Box, Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const NAV_LINKS = [
-  { name: 'Contact', path: '/#contact', anchor: 'contact' },
+  { name: 'How it Works', path: '/#how-it-works', anchor: 'how-it-works' },
+  { name: 'Materials',    path: '/#materials',    anchor: 'materials' },
+  { name: 'Order Now',    path: '/order',          anchor: null },
 ];
 
 export default function Navbar() {
@@ -63,22 +65,22 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-3xl
-        border border-stone-200 rounded-full px-2 py-2 transition-all duration-300
+      className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-3xl
+        border rounded-full px-2 py-1.5 transition-all duration-300
         ${scrolled
-          ? 'bg-white/30 backdrop-blur-xl shadow-md shadow-stone-200/50'
-          : 'bg-white/50 backdrop-blur-md shadow-sm'
+          ? 'bg-white/95 backdrop-blur-2xl border-stone-200 shadow-md shadow-stone-200/60'
+          : 'bg-white/80 backdrop-blur-xl border-stone-200/70 shadow-sm'
         }`}
     >
-      <div className="flex justify-between items-center h-12 px-6">
+      <div className="flex justify-between items-center h-11 px-4">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group" onClick={() => setMobileOpen(false)}>
+        <Link href="/" className="flex items-center gap-2.5 group" onClick={() => setMobileOpen(false)}>
           <div className="p-[6px] bg-stone-900 rounded-full text-white
-            group-hover:scale-105 group-hover:rotate-12 transition-transform shadow-lg shadow-stone-200">
-            <Box size={20} />
+            group-hover:bg-stone-700 transition-colors duration-200">
+            <Box size={18} />
           </div>
-          <span className="text-lg font-bold text-stone-900 tracking-wide hidden sm:block">
+          <span className="text-base font-bold text-stone-900 tracking-tight hidden sm:block">
             LayerLabs
           </span>
         </Link>
@@ -90,20 +92,17 @@ export default function Navbar() {
               key={link.name}
               href={link.path}
               onClick={(e) => handleAnchorClick(e, link)}
-              className={`transition-all font-semibold text-sm px-3 py-2 rounded-full ${isActive(link)
-                ? 'bg-stone-100 text-stone-900 ring-1 ring-stone-200'
-                : 'text-stone-500 hover:text-stone-900 hover:bg-stone-100'
-                }`}
+              className={`transition-all font-medium text-sm px-4 py-2 rounded-full ${
+                link.path === '/order'
+                  ? 'bg-stone-900 text-white hover:bg-stone-700 shadow-sm'
+                  : isActive(link)
+                    ? 'bg-stone-100 text-stone-900 font-semibold'
+                    : 'text-stone-500 hover:text-stone-900 hover:bg-stone-100'
+              }`}
             >
               {link.name}
             </Link>
           ))}
-          <Link
-            href="/order"
-            className="ml-2 transition-all font-bold text-sm px-4 py-2 rounded-full bg-stone-900 text-white shadow-md hover:-translate-y-0.5 hover:shadow-lg"
-          >
-            Get a Quote
-          </Link>
         </div>
 
         {/* Mobile hamburger */}
@@ -118,27 +117,23 @@ export default function Navbar() {
 
       {/* Mobile dropdown */}
       {mobileOpen && (
-        <div className="sm:hidden mt-2 mb-1 mx-2 flex flex-col gap-1 border-t border-stone-200 pt-3 pb-2 px-2">
+        <div className="sm:hidden mt-1 mb-1 mx-2 flex flex-col gap-1 border-t border-stone-100 pt-3 pb-2 px-2">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.name}
               href={link.path}
               onClick={(e) => handleAnchorClick(e, link)}
-              className={`block font-semibold text-sm px-4 py-2.5 rounded-full transition-all ${isActive(link)
-                ? 'bg-stone-100 text-stone-900 ring-1 ring-stone-200'
-                : 'text-stone-500 hover:text-stone-900 hover:bg-stone-100'
-                }`}
+              className={`block font-medium text-sm px-4 py-2.5 rounded-full transition-all ${
+                link.path === '/order'
+                  ? 'bg-stone-900 text-white text-center'
+                  : isActive(link)
+                    ? 'bg-stone-100 text-stone-900 font-semibold'
+                    : 'text-stone-500 hover:text-stone-900 hover:bg-stone-100'
+              }`}
             >
               {link.name}
             </Link>
           ))}
-          <Link
-            href="/order"
-            className="block mt-2 font-bold text-sm px-4 py-2.5 rounded-full transition-all bg-stone-900 text-white text-center shadow-md"
-            onClick={() => setMobileOpen(false)}
-          >
-            Get a Quote
-          </Link>
         </div>
       )}
     </nav>
