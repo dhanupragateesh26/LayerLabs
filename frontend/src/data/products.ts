@@ -42,5 +42,5 @@ export const products: Product[] = [
     price: "₹1499",
     originalPrice: "",
     discount: false
-  }
+  },
 ];

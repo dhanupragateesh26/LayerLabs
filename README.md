@@ -1,121 +1,124 @@
 # LayerLabs — 3D Printing Service
 
-A full-stack platform for custom FDM 3D printing. Customers upload an STL file, configure their print, and submit an order. The backend sends an automatic confirmation email and stores the file securely in MongoDB GridFS with a 24-hour auto-cleanup.
+A modern, full-stack platform for custom FDM 3D printing and rapid prototyping. Customers can upload and preview `.stl` files in 3D, configure print parameters (material, infill, color, quantity), and submit quotes. The backend stores 3D files directly in MongoDB Atlas via GridFS (with automated 24-hour cleanup) and dispatches transactional confirmation emails via Resend.
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-| Layer     | Technology |
-|-----------|-----------|
-| Frontend  | Next.js 15 (App Router), TypeScript, Tailwind CSS v4 |
-| 3D Viewer | Three.js + STLLoader + OrbitControls |
-| Backend   | Node.js / Express 5 |
-| Database  | MongoDB Atlas + GridFS (STL file storage) |
-| Email     | Nodemailer (Gmail App Password) |
-| Frontend hosting | Vercel |
-| Backend hosting  | Render |
+| Layer | Technology |
+|---|---|
+| **Frontend** | Next.js 16 (App Router), React 19, TypeScript 5 |
+| **Styling & UI** | Tailwind CSS v4, PostCSS, Lucide React |
+| **Animations** | Framer Motion |
+| **3D Rendering** | Three.js + STLLoader + OrbitControls |
+| **Backend** | Node.js, Express 5 |
+| **Database & Storage** | MongoDB Atlas + GridFS (Binary STL Object Storage) |
+| **Email Delivery** | Resend API |
+| **Hosting** | Vercel (Frontend) & Render (Backend) |
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 LayerLabs/
-├── frontend/          # Next.js app
+├── frontend/                     # Next.js App Router Client
+│   ├── public/                   # Static assets, product images, cursors
 │   ├── src/
-│   │   ├── app/       # Pages (/, /order)
-│   │   └── components/# Navbar, Footer, STLViewer, Background
-│   ├── .env.example   # Copy → .env.local for local dev
-│   └── next.config.ts
-├── backend/           # Express API
-│   ├── models/        # Mongoose schemas
-│   ├── server.js      # Main server (GridFS, email, cleanup job)
-│   └── .env.example   # Copy → .env for local dev
-└── render.yaml        # One-click Render deployment
+│   │   ├── app/
+│   │   │   ├── page.tsx          # Landing page (Hero, Services, Products, Materials)
+│   │   │   ├── layout.tsx        # Root layout, theme config, global navbar/footer
+│   │   │   ├── globals.css       # Custom styling, Tailwind v4 design system
+│   │   │   ├── order/            # 3D upload & order configuration page
+│   │   │   ├── modelling/        # 3D Modelling service page
+│   │   │   └── prototyping/      # Rapid Prototyping service page
+│   │   ├── components/           # Navbar, ContactFooter, STLViewer, InteractiveBackground
+│   │   └── data/                 # Modular product catalogue (products.ts)
+│   ├── .env.example              # Template for frontend environment variables
+│   └── package.json
+├── backend/                      # Standalone Express REST API
+│   ├── models/                   # Mongoose schemas (Order.js)
+│   ├── server.js                 # Express server, GridFS streaming, email service, auto-cleanup
+│   ├── .env.example              # Template for backend environment variables
+│   └── package.json
+└── render.yaml                   # Infrastructure-as-code Blueprint for Render
 ```
 
 ---
 
-## Local Development
+## 🚀 Local Development Setup
 
-### 1 — Backend
+### 1. Backend
 
 ```bash
 cd backend
-cp .env.example .env        # fill in your values
+cp .env.example .env          # Configure your environment variables
 npm install
-npm run dev                 # nodemon, port 5000
+npm run dev                   # Starts server on http://localhost:5000
 ```
 
-**Required `.env` values:**
+**Required `backend/.env` variables:**
 
-| Key | Description |
-|-----|-------------|
-| `MONGODB_URI` | MongoDB Atlas connection string |
-| `ALLOWED_ORIGINS` | `http://localhost:3000` for local dev |
-| `EMAIL_USER` | Gmail address for sending confirmations |
-| `EMAIL_PASS` | Gmail **App Password** (not your regular password) |
-
-> **Gmail App Password:** Google Account → Security → 2-Step Verification → App Passwords
-
-### 2 — Frontend
-
-```bash
-cd frontend
-cp .env.example .env.local  # fill in backend URL
-npm install
-npm run dev                 # Next.js, port 3000
-```
-
-**Required `.env.local` value:**
-
-| Key | Description |
-|-----|-------------|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:5000` for local dev |
+| Variable | Description |
+|---|---|
+| `MONGODB_URI` | MongoDB Atlas connection string (`mongodb+srv://...`) |
+| `ALLOWED_ORIGINS` | `http://localhost:3000` (comma-separated origins allowed for CORS) |
+| `PORT` | Server port (default: `5000`) |
+| `RESEND_API_KEY` | Resend API key for transactional emails (`re_...`) |
 
 ---
 
-## Deployment
+### 2. Frontend
 
-### Backend → Render
+```bash
+cd frontend
+cp .env.example .env.local    # Set API URL
+npm install
+npm run dev                   # Starts Next.js on http://localhost:3000
+```
 
-1. Push this repo to GitHub.
-2. Go to [render.com](https://render.com) → **New → Blueprint** → select your repo.
-3. Render reads `render.yaml` automatically.
-4. In the Render dashboard, set the four **secret** env vars manually:
+**Required `frontend/.env.local` variables:**
+
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | `http://localhost:5000` (points to the backend API) |
+
+---
+
+## 🌐 Deployment Guide
+
+### Backend Deployment (Render)
+1. Link your GitHub repository to [Render](https://render.com).
+2. Create a new **Web Service** or use the included `render.yaml` Blueprint.
+3. Configure the Environment Variables in the Render dashboard:
    - `MONGODB_URI`
-   - `ALLOWED_ORIGINS` → your Vercel URL, e.g. `https://layerlabs.vercel.app`
-   - `EMAIL_USER`
-   - `EMAIL_PASS`
-5. Deploy. Note your backend URL (e.g. `https://layerlabs-backend.onrender.com`).
+   - `ALLOWED_ORIGINS` → Your production frontend URL (e.g. `https://layerlabs.vercel.app`)
+   - `RESEND_API_KEY`
+   - `BACKEND_URL` → Your Render service URL (e.g. `https://layerlabs.onrender.com`)
 
-### Frontend → Vercel
-
-1. Go to [vercel.com](https://vercel.com) → **Add New Project** → import your repo.
-2. Set **Root Directory** to `frontend`.
-3. Add this Environment Variable in Vercel:
-   - `NEXT_PUBLIC_API_URL` = your Render backend URL (no trailing slash)
+### Frontend Deployment (Vercel)
+1. Import your GitHub repository into [Vercel](https://vercel.com).
+2. Set the **Root Directory** to `frontend`.
+3. Add the environment variable:
+   - `NEXT_PUBLIC_API_URL` = Your deployed Render backend URL (no trailing slash).
 4. Deploy.
 
 ---
 
-## Features
+## ✨ Key Features
 
-- **3D STL Viewer** — drag-and-drop upload with real-time Three.js preview
-- **Model Colour Picker** — 8 colour swatches to preview your print colour
-- **Smart Weight Estimate** — calculates solid-100% weight × quantity in-browser
-- **Order Form** — material, infill density & pattern, quantity, delivery address
-- **Email Confirmation** — automatic order receipt email to customer + BCC to owner
-- **GridFS Storage** — STL files stored in MongoDB Atlas, never on disk
-- **24h Auto-Cleanup** — hourly cron job deletes STL files older than 24 hours
-- **Mobile-Responsive** — collapsible navbar, responsive grid layouts
-- **Anchor Navigation** — smooth-scroll between landing page sections
+- **Interactive 3D STL Viewer** — Drag-and-drop `.stl` file uploads with orbit controls, mesh lighting, and real-time bounding volume & weight estimates.
+- **Dynamic Product Catalogue** — Modular product system (`src/data/products.ts`) with expandable "See More / Show Less" showcase drawer.
+- **Interactive Materials Deck** — Smooth fan-out animation revealing material properties and an intuitive "Find Your Material" comparison matrix.
+- **Streamlined Order System** — Custom infill, material, and color specifications submitted with client-side validation.
+- **Secure Cloud File Storage** — High-capacity `.stl` binary storage using MongoDB GridFS without consuming server disk space.
+- **Automated Lifecycle & Cleanup** — 24-hour automated TTL job that deletes uploaded 3D files after order processing.
+- **Instant Email Receipts** — Branded HTML confirmation emails with direct model download links via Resend.
+- **Modern Stone Aesthetic** — Tailored light theme with smooth micro-animations, glassmorphism, and branded hover glows.
 
 ---
 
-## Notes
+## 📄 License
 
-- The free Render plan spins down after 15 min of inactivity — the first request may be slow (~30 s).
-- The weight estimate assumes 100% infill; actual print weight will be lower depending on infill density.
-- STL files are stored only for 24 hours so the team can download and process them.
+This project is proprietary and maintained by LayerLabs. All rights reserved.
