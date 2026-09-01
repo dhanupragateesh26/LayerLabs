@@ -80,7 +80,7 @@ async function sendOrderConfirmationEmail(order, req) {
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#09090b;color:#e5e7eb;padding:32px;border-radius:12px;border:1px solid #27272a;">
       <div style="text-align:center;margin-bottom:28px;">
-        <h1 style="color:#a855f7;font-size:26px;margin:0;letter-spacing:-0.5px;">LayerLabs</h1>
+        <h1 style="color:#4f6b43;font-size:26px;margin:0;letter-spacing:-0.5px;">LayerLabs</h1>
         <p style="color:#6b7280;margin:6px 0 0;font-size:13px;">3D Printing Service</p>
       </div>
 
@@ -92,9 +92,17 @@ async function sendOrderConfirmationEmail(order, req) {
       <p style="color:#d1d5db;line-height:1.6;">Thank you for your order! We've received your 3D print request and will review it shortly. You'll be contacted with a personalised quote soon.</p>
 
       <div style="background:#18181b;border:1px solid #27272a;border-radius:8px;padding:20px;margin:24px 0;">
-        <p style="color:#a855f7;margin:0 0 14px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;">Order Summary</p>
+        <p style="color:#4f6b43;margin:0 0 14px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;">Customer Details</p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
+          <tr><td style="color:#6b7280;padding:5px 0;width:40%;">Name</td><td style="color:#e5e7eb;">${order.name}</td></tr>
+          <tr><td style="color:#6b7280;padding:5px 0;">Email</td><td style="color:#e5e7eb;">${order.email}</td></tr>
+          <tr><td style="color:#6b7280;padding:5px 0;">Phone</td><td style="color:#e5e7eb;">${order.phone}</td></tr>
+          <tr><td style="color:#6b7280;padding:5px 0;">Delivery Address</td><td style="color:#e5e7eb;">${order.address}</td></tr>
+        </table>
+
+        <p style="color:#4f6b43;margin:0 0 14px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;">Order Summary</p>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
-          <tr><td style="color:#6b7280;padding:5px 0;width:40%;">Order ID</td><td style="color:#c084fc;font-family:monospace;">${order._id}</td></tr>
+          <tr><td style="color:#6b7280;padding:5px 0;width:40%;">Order ID</td><td style="color:#739b62;font-family:monospace;">${order._id}</td></tr>
           <tr><td style="color:#6b7280;padding:5px 0;">File</td><td style="color:#e5e7eb;">${order.stlFileName}</td></tr>
           <tr><td style="color:#6b7280;padding:5px 0;">Material</td><td style="color:#e5e7eb;">${order.material}</td></tr>
           <tr><td style="color:#6b7280;padding:5px 0;">Color</td><td style="color:#e5e7eb;">${order.color}</td></tr>
@@ -102,23 +110,20 @@ async function sendOrderConfirmationEmail(order, req) {
           <tr><td style="color:#6b7280;padding:5px 0;">Infill Pattern</td><td style="color:#e5e7eb;">${order.infillPattern}</td></tr>
           <tr><td style="color:#6b7280;padding:5px 0;">Quantity</td><td style="color:#e5e7eb;">${order.quantity}</td></tr>
           <tr><td style="color:#6b7280;padding:5px 0;">Date Submitted</td><td style="color:#e5e7eb;">${orderDate}</td></tr>
-          <tr><td style="color:#6b7280;padding:5px 0;">Delivery Address</td><td style="color:#e5e7eb;">${order.address}</td></tr>
           ${order.comments ? `<tr><td style="color:#6b7280;padding:5px 0;">Special Requests</td><td style="color:#e5e7eb;">${order.comments}</td></tr>` : ''}
         </table>
 
         <div style="margin-top:16px;padding-top:16px;border-top:1px solid #27272a;">
-          <p style="color:#a855f7;margin:0 0 5px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;">File Access</p>
-          <a href="${downloadUrl}" style="color:#60a5fa;text-decoration:none;font-size:13px;">⬇️ Click here to download the .STL file</a>
+          <p style="color:#4f6b43;margin:0 0 5px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;">File Access</p>
+          <a href="${downloadUrl}" style="color:#739b62;text-decoration:none;font-size:13px;">⬇️ Click here to download the .STL file</a>
         </div>
       </div>
 
-      <div style="background:#1a0f2e;border:1px solid #a855f730;border-radius:8px;padding:14px 18px;margin-bottom:20px;">
-        <p style="color:#c084fc;margin:0;font-size:13px;line-height:1.5;">
+      <div style="background:#131a10;border:1px solid #4f6b4330;border-radius:8px;padding:14px 18px;margin-bottom:20px;">
+        <p style="color:#739b62;margin:0;font-size:13px;line-height:1.5;">
           ⏰ <strong>Note:</strong> Your uploaded STL file is stored securely in the cloud for <strong>24 hours</strong>. Our team will download and process it within that window.
         </p>
       </div>
-
-      <p style="color:#d1d5db;font-size:14px;">We'll reach out to you at <strong style="color:#fff;">${order.email}</strong> or <strong style="color:#fff;">${order.phone}</strong> with your quote.</p>
 
       <div style="text-align:center;margin-top:32px;padding-top:20px;border-top:1px solid #27272a;">
         <p style="color:#4b5563;font-size:12px;margin:0;">© ${new Date().getFullYear()} LayerLabs · All rights reserved</p>
