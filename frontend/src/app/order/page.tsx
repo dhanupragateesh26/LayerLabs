@@ -39,7 +39,7 @@ export default function OrderPage() {
     phone: '',
     address: '',
     material: 'PLA',
-    color: 'Grey',
+    color: 'Red',
     infillDensity: "Default",
     infillPattern: "Default",
     quantity: 1,
@@ -53,7 +53,7 @@ export default function OrderPage() {
     { id: 'PLA', name: 'PLA', disabled: false },
     { id: 'PETG', name: 'PETG', disabled: false },
     { id: 'TPU', name: 'TPU', disabled: true },
-    { id: 'ABS', name: 'ABS (Coming Soon)', disabled: true },
+    { id: 'ABS', name: 'ABS', disabled: true },
   ];
 
   const materialColors: Record<string, string[]> = {
@@ -129,10 +129,10 @@ export default function OrderPage() {
     setUploadProgress(10);
 
     const data = new FormData();
-    data.append('stlFile', file, fileName);
     Object.entries(formData).forEach(([key, value]) => {
       data.append(key, String(value));
     });
+    data.append('stlFile', file, fileName);
 
     try {
       const progressInterval = setInterval(() => {
@@ -160,7 +160,7 @@ export default function OrderPage() {
         setFileName('');
         setVolumeMm3(0);
         setFormData({
-          name: '', email: '', phone: '', address: '', material: 'PLA', color: 'Grey', infillDensity: "Default", infillPattern: "Default", quantity: 1, comments: ''
+          name: '', email: '', phone: '', address: '', material: 'PLA', color: 'Red', infillDensity: "Default", infillPattern: "Default", quantity: 1, comments: ''
         });
       } else {
         try {
