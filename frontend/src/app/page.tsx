@@ -227,16 +227,16 @@ function PopularProducts() {
 function StatsSection() {
   return (
     <section className="py-20 border-y border-stone-200 bg-stone-50">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-10 text-center">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-3 gap-10 text-center">
         <div>
           <div className="text-5xl md:text-6xl font-black text-[#4f6b43] mb-2 tracking-tighter">
-            <Counter from={0} to={500} />+
+            <Counter from={0} to={100} />+
           </div>
           <div className="text-sm font-bold text-stone-500 uppercase tracking-widest">Prints Completed</div>
         </div>
         <div>
           <div className="text-5xl md:text-6xl font-black text-[#4f6b43] mb-2 tracking-tighter">
-            <Counter from={0} to={50} />+
+            <Counter from={0} to={10} />+
           </div>
           <div className="text-sm font-bold text-stone-500 uppercase tracking-widest">Custom Projects</div>
         </div>
@@ -244,13 +244,7 @@ function StatsSection() {
           <div className="text-5xl md:text-6xl font-black text-[#4f6b43] mb-2 tracking-tighter">
             <Counter from={0} to={10} />+
           </div>
-          <div className="text-sm font-bold text-stone-500 uppercase tracking-widest">Material Options</div>
-        </div>
-        <div>
-          <div className="text-5xl md:text-6xl font-black text-[#4f6b43] mb-2 tracking-tighter">
-            <Counter from={0} to={99} />%
-          </div>
-          <div className="text-sm font-bold text-stone-500 uppercase tracking-widest">Satisfaction</div>
+          <div className="text-sm font-bold text-stone-500 uppercase tracking-widest">Color Options</div>
         </div>
       </div>
     </section>
