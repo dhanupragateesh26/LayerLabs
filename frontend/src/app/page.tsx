@@ -128,6 +128,54 @@ function ServicesSection() {
   );
 }
 
+function ProductCard({ prod, index }: { prod: typeof products[0], index: number }) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: (index % 3) * 0.1 }}
+      className="group relative rounded-2xl border border-stone-200 bg-[#F7F5F0] hover:border-stone-300 shadow-sm hover:shadow-[0_12px_40px_#4f6b4333] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer [perspective:1000px]"
+      onClick={() => setIsFlipped(!isFlipped)}
+    >
+      <motion.div
+        className="w-full h-full relative [transform-style:preserve-3d]"
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+      >
+        {/* Front of Card (Dictates Height) */}
+        <div className="backface-hidden flex flex-col overflow-hidden rounded-2xl bg-[#F7F5F0]">
+          <div className="relative aspect-square overflow-hidden bg-white/50 rounded-t-2xl">
+            <img src={prod.img} alt={prod.title} className="w-full h-full object-cover transition-transform duration-700 ease-out" />
+          </div>
+          <div className="p-4 flex flex-col grow justify-center items-center">
+            <h3 className="text-base font-bold text-stone-900 group-hover:text-[#4f6b43] transition-colors leading-tight text-center mb-2">{prod.title}</h3>
+
+            <div className="flex flex-wrap gap-1.5 justify-center">
+              {(prod.badges || []).slice(0, 3).map((badge, idx) => (
+                <span key={idx} className={`text-[10px] font-bold px-2 py-0.5 rounded ${idx === 0 ? 'bg-[#ecf0e6] text-[#4f6b43]' : 'bg-white border border-stone-200 text-stone-500'}`}>
+                  {badge}
+                </span>
+              ))}
+            </div>
+
+            <span className="text-[10px] text-stone-400 mt-3 uppercase tracking-widest font-bold">Click to read more</span>
+          </div>
+        </div>
+
+        {/* Back of Card (Flipped) */}
+        <div className="absolute inset-0 backface-hidden [transform:rotateY(180deg)] bg-[#4f6b43] text-white p-6 flex flex-col justify-center items-center text-center overflow-hidden rounded-2xl border border-[#3c5233]">
+          <h3 className="text-xl font-black mb-4 tracking-tight">{prod.title}</h3>
+          <p className="text-sm text-stone-200 leading-relaxed">{prod.desc}</p>
+          <span className="text-[10px] text-white/50 mt-6 uppercase tracking-widest font-bold">Click to flip back</span>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function PopularProducts() {
   const [expanded, setExpanded] = useState(false);
   const visibleProducts = expanded ? products : products.slice(0, 3);
@@ -141,45 +189,7 @@ function PopularProducts() {
 
       <div className="grid md:grid-cols-3 gap-6 mb-12">
         {visibleProducts.map((prod, i) => (
-          <motion.div
-            key={prod.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: (i % 3) * 0.1 }}
-            className="group relative rounded-2xl overflow-hidden border border-stone-200 bg-[#F7F5F0] hover:border-stone-300 shadow-sm hover:shadow-[0_12px_40px_#4f6b4333] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col"
-          >
-            <div className="relative aspect-square overflow-hidden bg-white/50 rounded-t-2xl">
-              <img src={prod.img} alt={prod.title} className="w-full h-full object-cover transition-transform duration-700 ease-out" />
-              {prod.discount && (
-                <div className="absolute top-3 right-3 bg-amber-100 text-amber-800 text-[10px] uppercase font-bold px-2 py-1 rounded shadow-sm z-10">
-                  Sale
-                </div>
-              )}
-            </div>
-
-            <div className="p-4 flex flex-col grow">
-              <div className="flex justify-between items-start mb-2 gap-2">
-                <h3 className="text-base font-bold text-stone-900 group-hover:text-[#4f6b43] transition-colors leading-tight">{prod.title}</h3>
-                <div className="flex flex-col items-end shrink-0">
-                  <span className="text-base font-bold text-stone-900 leading-none">{prod.price}</span>
-                  {prod.originalPrice && (
-                    <span className="text-[11px] font-medium text-stone-400 line-through mt-1">{prod.originalPrice}</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {prod.badges.slice(0, 3).map((badge, idx) => (
-                  <span key={idx} className={`text-[10px] font-bold px-2 py-0.5 rounded ${idx === 0 ? 'bg-[#ecf0e6] text-[#4f6b43]' : 'bg-white border border-stone-200 text-stone-500'}`}>
-                    {badge}
-                  </span>
-                ))}
-              </div>
-
-              <p className="text-[13px] text-stone-500 line-clamp-2 leading-relaxed grow">{prod.desc}</p>
-            </div>
-          </motion.div>
+          <ProductCard key={prod.id} prod={prod} index={i} />
         ))}
       </div>
 
