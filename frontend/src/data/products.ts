@@ -28,7 +28,7 @@ export const products: Product[] = [
     id: "michael-jackson-figure",
     title: "Michael Jackson Figure",
     img: "/products/michaeljackson.png",
-    badges: ["ABS", "20 cm", "Painted", "Figure"],
+    badges: ["PLA", "20 cm", "Painted", "Figure"],
     desc: "A highly detailed collectible figure of the King of Pop in his iconic pose. Great for collectors and fans."
 
   },
