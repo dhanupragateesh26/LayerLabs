@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { motion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
-import { ChevronRight, ArrowRight, Printer, PenTool, Zap, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
+import { ChevronRight, ChevronLeft, ArrowRight } from 'lucide-react';
 import { products } from '../data/products';
+import ProductCustomizeModal from '@/components/ProductCustomizeModal';
 
 /* ─── Components ─────────────────────────────────────────── */
 
@@ -128,8 +129,100 @@ function ServicesSection() {
   );
 }
 
-function ProductCard({ prod, index }: { prod: typeof products[0], index: number }) {
-  const [isFlipped, setIsFlipped] = useState(false);
+function ProductImageCarousel({
+  images,
+  title,
+  onImageClick,
+}: {
+  images: string[];
+  title: string;
+  onImageClick?: () => void;
+}) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  return (
+    <div
+      className="relative aspect-square overflow-hidden bg-stone-100 rounded-t-2xl cursor-pointer group/carousel"
+      onClick={onImageClick}
+    >
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={images[currentIndex] || images[0]}
+          src={images[currentIndex] || images[0]}
+          alt={`${title} - image ${currentIndex + 1}`}
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 select-none"
+        />
+      </AnimatePresence>
+
+      {/* Clickable Left/Right Navigation Arrows */}
+      {images.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={prevImage}
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-stone-900/75 hover:bg-stone-900 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-md hover:scale-110 z-10 cursor-pointer"
+            aria-label="Previous image"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={nextImage}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-stone-900/75 hover:bg-stone-900 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-md hover:scale-110 z-10 cursor-pointer"
+            aria-label="Next image"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </>
+      )}
+
+      {/* Clickable Slide Indicators / Dots */}
+      {images.length > 1 && (
+        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-stone-950/60 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-white/15">
+          {images.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentIndex(idx);
+              }}
+              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                idx === currentIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/40 hover:bg-white/80'
+              }`}
+              aria-label={`Go to image ${idx + 1}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProductCard({
+  prod,
+  index,
+  onCustomize,
+}: {
+  prod: typeof products[0];
+  index: number;
+  onCustomize: (prod: typeof products[0]) => void;
+}) {
+  const cardImages = prod.images && prod.images.length > 0 ? prod.images : [prod.img];
 
   return (
     <motion.div
@@ -137,89 +230,147 @@ function ProductCard({ prod, index }: { prod: typeof products[0], index: number 
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: (index % 3) * 0.1 }}
-      className="group relative rounded-2xl border border-stone-200 bg-[#F7F5F0] hover:border-stone-300 shadow-sm hover:shadow-[0_12px_40px_#4f6b4333] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer [perspective:1000px]"
-      onClick={() => setIsFlipped(!isFlipped)}
+      className="group relative rounded-2xl border border-stone-200 bg-[#F7F5F0] hover:border-stone-300 shadow-sm hover:shadow-[0_12px_40px_#4f6b4333] hover:-translate-y-1.5 transition-all duration-300 flex flex-col overflow-hidden"
     >
-      <motion.div
-        className="w-full h-full relative [transform-style:preserve-3d]"
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
-      >
-        {/* Front of Card (Dictates Height) */}
-        <div className="backface-hidden flex flex-col overflow-hidden rounded-2xl bg-[#F7F5F0]">
-          <div className="relative aspect-square overflow-hidden bg-white/50 rounded-t-2xl">
-            <img src={prod.img} alt={prod.title} className="w-full h-full object-cover transition-transform duration-700 ease-out" />
-          </div>
-          <div className="p-4 flex flex-col grow justify-center items-center">
-            <h3 className="text-base font-bold text-stone-900 group-hover:text-[#4f6b43] transition-colors leading-tight text-center mb-2">{prod.title}</h3>
+      {/* Clickable Image Carousel Header */}
+      <div className="relative">
+        <ProductImageCarousel
+          images={cardImages}
+          title={prod.title}
+          onImageClick={() => onCustomize(prod)}
+        />
 
-            <div className="flex flex-wrap gap-1.5 justify-center">
-              {(prod.badges || []).slice(0, 3).map((badge, idx) => (
-                <span key={idx} className={`text-[10px] font-bold px-2 py-0.5 rounded ${idx === 0 ? 'bg-[#ecf0e6] text-[#4f6b43]' : 'bg-white border border-stone-200 text-stone-500'}`}>
-                  {badge}
-                </span>
-              ))}
-            </div>
+        {/* Price Badge */}
+        <span className="absolute top-3 right-3 bg-stone-900/85 backdrop-blur-md text-white font-bold text-xs px-2.5 py-1 rounded-full border border-white/20 shadow-md pointer-events-none z-10">
+          From ₹{prod.basePrice}
+        </span>
 
-            <span className="text-[10px] text-stone-400 mt-3 uppercase tracking-widest font-bold">Click to read more</span>
+        {/* Customization Indicators */}
+        <div className="absolute bottom-2.5 left-2.5 flex flex-wrap gap-1 pointer-events-none z-10">
+          {prod.allowImageUpload && (
+            <span className="bg-[#4f6b43]/90 backdrop-blur-md text-white font-bold text-[9px] px-2 py-0.5 rounded-md shadow-sm">
+              📷 Custom Photo
+            </span>
+          )}
+          {prod.designs && (
+            <span className="bg-amber-600/90 backdrop-blur-md text-white font-bold text-[9px] px-2 py-0.5 rounded-md shadow-sm">
+              🎨 {prod.designs.length} Designs
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Card Body */}
+      <div className="p-4 flex flex-col grow justify-between">
+        <div>
+          <h3
+            onClick={() => onCustomize(prod)}
+            className="text-base font-bold text-stone-900 group-hover:text-[#4f6b43] transition-colors leading-tight cursor-pointer mb-2"
+          >
+            {prod.title}
+          </h3>
+
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {prod.sizes && (
+              <span className="text-[10px] font-bold bg-[#ecf0e6] text-[#4f6b43] px-2 py-0.5 rounded">
+                {prod.sizes.length} Sizes
+              </span>
+            )}
+            {(prod.badges || []).slice(0, 2).map((badge, idx) => (
+              <span
+                key={idx}
+                className="text-[10px] font-medium bg-white border border-stone-200 text-stone-600 px-2 py-0.5 rounded"
+              >
+                {badge}
+              </span>
+            ))}
           </div>
+
+          <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed mb-3">
+            {prod.desc}
+          </p>
         </div>
 
-        {/* Back of Card (Flipped) */}
-        <div className="absolute inset-0 backface-hidden [transform:rotateY(180deg)] bg-[#4f6b43] text-white p-6 flex flex-col justify-center items-center text-center overflow-hidden rounded-2xl border border-[#3c5233]">
-          <h3 className="text-xl font-black mb-4 tracking-tight">{prod.title}</h3>
-          <p className="text-sm text-stone-200 leading-relaxed">{prod.desc}</p>
-          <span className="text-[10px] text-white/50 mt-6 uppercase tracking-widest font-bold">Click to flip back</span>
+        <div className="pt-3 border-t border-stone-200/60 flex items-center justify-between gap-2">
+          <div className="text-xs font-black text-stone-800">
+            ₹{prod.basePrice}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onCustomize(prod)}
+            className="py-2.5 px-4 rounded-xl bg-stone-900 hover:bg-[#4f6b43] text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:shadow-md cursor-pointer"
+          >
+            <span>Customize</span>
+            <ArrowRight size={13} />
+          </button>
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
 
 function PopularProducts() {
   const [expanded, setExpanded] = useState(false);
+  const [customizingProduct, setCustomizingProduct] = useState<typeof products[0] | null>(null);
   const visibleProducts = expanded ? products : products.slice(0, 3);
 
   return (
     <section className="py-24 max-w-7xl mx-auto px-6" id="popular-products">
       <div className="mb-12 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-stone-900 tracking-tight mb-4 uppercase">POPULAR <span className="text-[#4f6b43]">PRODUCTS</span></h2>
-        <p className="text-stone-500 text-lg">Our <span className="text-[#4f6b43] font-medium">best-selling</span> 3D creations loved by our customers.</p>
+        <h2 className="text-4xl md:text-5xl font-bold text-stone-900 tracking-tight mb-4 uppercase">
+          POPULAR <span className="text-[#4f6b43]">PRODUCTS</span>
+        </h2>
+        <p className="text-stone-500 text-lg">
+          Our <span className="text-[#4f6b43] font-medium">best-selling</span> customizable 3D creations. Pick your size, color, or design.
+        </p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 mb-12">
         {visibleProducts.map((prod, i) => (
-          <ProductCard key={prod.id} prod={prod} index={i} />
+          <ProductCard
+            key={prod.id}
+            prod={prod}
+            index={i}
+            onCustomize={(p) => setCustomizingProduct(p)}
+          />
         ))}
       </div>
 
-      <div className="flex justify-center gap-4 flex-wrap">
-        {!expanded ? (
-          <button
-            onClick={() => setExpanded(true)}
-            className="px-8 py-3 rounded-xl border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100 hover:text-stone-900 transition-colors"
-          >
-            See More
-          </button>
-        ) : (
-          <>
-            <button
-              onClick={() => {
-                setExpanded(false);
-                // Scroll back to the top of the section slightly when collapsing
-                const el = document.getElementById("popular-products");
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="px-8 py-3 rounded-xl border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100 hover:text-stone-900 transition-colors"
-            >
-              Show Less
-            </button>
-            <Link href="/order" className="px-8 py-3 rounded-xl bg-stone-900 text-white font-semibold hover:-translate-y-0.5 hover:shadow-lg shadow-md transition-all">
-              Order a Custom Part
-            </Link>
-          </>
-        )}
+      <div className="flex flex-col items-center justify-center gap-4">
+        {/* Toggle Products Button */}
+        <button
+          type="button"
+          onClick={() => {
+            if (expanded) {
+              setExpanded(false);
+              const el = document.getElementById('popular-products');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            } else {
+              setExpanded(true);
+            }
+          }}
+          className="px-8 py-3 rounded-2xl border border-stone-300 text-stone-700 text-sm font-bold hover:bg-white hover:border-stone-400 hover:text-stone-900 transition-all shadow-sm cursor-pointer"
+        >
+          {expanded ? 'Show Less' : `See All Products (${products.length})`}
+        </button>
+
+        {/* Order a Custom Part Button (centered below, spaced downwards and bigger) */}
+        <Link
+          href="/order"
+          className="mt-3 sm:mt-5 px-10 py-4 rounded-2xl bg-stone-900 hover:bg-[#4f6b43] text-white text-base font-extrabold hover:-translate-y-0.5 hover:shadow-xl shadow-lg transition-all flex items-center gap-3 cursor-pointer group"
+        >
+          <span>Order a Custom Part</span>
+          <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+        </Link>
       </div>
+
+      {/* Product Customization Modal */}
+      <ProductCustomizeModal
+        product={customizingProduct}
+        isOpen={!!customizingProduct}
+        onClose={() => setCustomizingProduct(null)}
+      />
     </section>
   );
 }
@@ -336,7 +487,7 @@ function MaterialsSection() {
             <tbody className="divide-y divide-stone-100">
               <tr className="hover:bg-stone-50/50 transition-colors">
                 <td className="py-6 font-semibold text-stone-700 pl-4">Strength</td>
-                <td className="py-"><div className="flex justify-center"><DotRating rating={3} /></div></td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={3} /></div></td>
                 <td className="py-6"><div className="flex justify-center"><DotRating rating={4} /></div></td>
                 <td className="py-6"><div className="flex justify-center"><DotRating rating={1} /></div></td>
               </tr>

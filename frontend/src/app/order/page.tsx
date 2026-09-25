@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useRef, ChangeEvent, FormEvent } from 'react';
-import { UploadCloud, FileType2, CheckCircle, AlertCircle } from 'lucide-react';
+import { UploadCloud, FileType2, CheckCircle, AlertCircle, ShoppingBag } from 'lucide-react';
 import STLViewer from '@/components/STLViewer';
+import { useCart } from '@/context/CartContext';
 
 interface OrderSummary {
   _id: string;
@@ -22,6 +23,7 @@ interface OrderSummary {
 }
 
 export default function OrderPage() {
+  const { addToCart } = useCart();
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState('');
   const [volumeMm3, setVolumeMm3] = useState<number>(0);
@@ -31,6 +33,7 @@ export default function OrderPage() {
   const [submittedOrder, setSubmittedOrder] = useState<OrderSummary | null>(null);
   const [submitError, setSubmitError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [addedToCartToast, setAddedToCartToast] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -133,16 +136,16 @@ export default function OrderPage() {
       data.append(key, String(value));
     });
     data.append('stlFile', file, fileName);
+    if (volumeMm3 > 0) {
+      data.append('volumeMm3', String(volumeMm3));
+    }
 
     try {
       const progressInterval = setInterval(() => {
         setUploadProgress((prev) => (prev < 90 ? prev + 10 : prev));
       }, 200);
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (!apiUrl) {
-        throw new Error('API URL not configured. Please set NEXT_PUBLIC_API_URL in your environment.');
-      }
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
       const res = await fetch(`${apiUrl}/api/orders`, {
         method: 'POST',
@@ -170,10 +173,11 @@ export default function OrderPage() {
           setSubmitError(`Server responded with ${res.status}: ${res.statusText}`);
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setSubmitError(err.message === 'API URL not configured. Please set NEXT_PUBLIC_API_URL in your environment.'
-        ? err.message
+      const errMsg = err instanceof Error ? err.message : '';
+      setSubmitError(errMsg && errMsg.includes('API URL')
+        ? errMsg
         : 'Cannot connect to the backend server. Please check your internet connection or try again later.');
     } finally {
       setIsUploading(false);
@@ -475,23 +479,63 @@ export default function OrderPage() {
                 </div>
               )}
 
-              <button
-                type="submit"
-                disabled={isUploading || !file}
-                className="btn-primary w-full flex justify-center items-center py-4"
-              >
-                {isUploading ? (
-                  <div className="flex items-center gap-2">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Uploading... {uploadProgress}%
-                  </div>
-                ) : (
-                  'Submit Order Request'
-                )}
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <button
+                  type="button"
+                  disabled={!file}
+                  onClick={() => {
+                    if (!file) {
+                      setSubmitError('Please upload an STL file before adding to cart.');
+                      return;
+                    }
+                    addToCart({
+                      title: `Custom 3D Print (${fileName})`,
+                      fileName,
+                      file,
+                      material: formData.material,
+                      color: formData.color,
+                      infillDensity: formData.infillDensity,
+                      infillPattern: formData.infillPattern,
+                      quantity: Number(formData.quantity) || 1,
+                      comments: formData.comments,
+                      volumeMm3,
+                    }, 'custom_print');
+
+                    setAddedToCartToast(true);
+                    setTimeout(() => setAddedToCartToast(false), 3000);
+                  }}
+                  className="flex-1 py-4 px-6 rounded-xl border-2 border-stone-900 bg-white hover:bg-stone-50 text-stone-900 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
+                >
+                  <ShoppingBag size={18} />
+                  <span>Add Print to Cart</span>
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isUploading || !file}
+                  className="flex-1 btn-primary flex justify-center items-center py-4 text-sm font-bold shadow-md hover:-translate-y-0.5"
+                >
+                  {isUploading ? (
+                    <div className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Uploading... {uploadProgress}%
+                    </div>
+                  ) : (
+                    'Direct Order / Quote'
+                  )}
+                </button>
+              </div>
+
+              {addedToCartToast && (
+                <div className="p-3 bg-[#ecf0e6] border border-[#4f6b43]/30 text-[#4f6b43] rounded-xl text-xs font-bold flex items-center justify-center gap-2 animate-in fade-in">
+                  <CheckCircle size={16} />
+                  <span>Custom STL added to your cart! You can upload another or checkout via the cart.</span>
+                </div>
+              )}
+
               <p className="text-sm text-stone-500 mt-3 text-center">
                 Having trouble submitting? You can place your order by messaging us via the contact details below.
               </p>

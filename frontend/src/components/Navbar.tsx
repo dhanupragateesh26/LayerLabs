@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Box, Menu, X } from 'lucide-react';
+import { Box, Menu, X, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useCart } from '@/context/CartContext';
 
 const NAV_LINKS = [
   { name: 'Contact', path: '/#contact', anchor: 'contact' },
@@ -11,6 +12,7 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { openCart, totalCount } = useCart();
   const [activeAnchor, setActiveAnchor] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -24,7 +26,7 @@ export default function Navbar() {
 
   // Highlight nav items based on visible section via IntersectionObserver
   useEffect(() => {
-    if (pathname !== '/') { setActiveAnchor(null); return; }
+    if (pathname !== '/') return;
     const anchors = NAV_LINKS.map(l => l.anchor).filter(Boolean) as string[];
     const observers: IntersectionObserver[] = [];
 
@@ -39,7 +41,10 @@ export default function Navbar() {
       observers.push(obs);
     });
 
-    return () => observers.forEach(o => o.disconnect());
+    return () => {
+      observers.forEach(o => o.disconnect());
+      setActiveAnchor(null);
+    };
   }, [pathname]);
 
   const isActive = (link: typeof NAV_LINKS[0]) => {
@@ -66,11 +71,11 @@ export default function Navbar() {
       className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-3xl
         border border-stone-200 rounded-full px-2 py-2 transition-all duration-300
         ${scrolled
-          ? 'bg-white/30 backdrop-blur-xl shadow-md shadow-stone-200/50'
-          : 'bg-white/50 backdrop-blur-md shadow-sm'
+          ? 'bg-white/40 backdrop-blur-xl shadow-md shadow-stone-200/50'
+          : 'bg-white/60 backdrop-blur-md shadow-sm'
         }`}
     >
-      <div className="flex justify-between items-center h-12 px-6">
+      <div className="flex justify-between items-center h-12 px-5 sm:px-6">
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group" onClick={() => setMobileOpen(false)}>
@@ -84,13 +89,13 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop links */}
-        <div className="hidden sm:flex items-center gap-1">
+        <div className="hidden sm:flex items-center gap-1.5">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.name}
               href={link.path}
               onClick={(e) => handleAnchorClick(e, link)}
-              className={`transition-all font-semibold text-sm px-3 py-2 rounded-full ${isActive(link)
+              className={`transition-all font-semibold text-sm px-3.5 py-2 rounded-full ${isActive(link)
                 ? 'bg-stone-100 text-stone-900 ring-1 ring-stone-200'
                 : 'text-stone-500 hover:text-stone-900 hover:bg-stone-100'
                 }`}
@@ -100,20 +105,48 @@ export default function Navbar() {
           ))}
           <Link
             href="/order"
-            className="ml-2 transition-all font-bold text-sm px-4 py-2 rounded-full bg-stone-900 text-white shadow-md hover:-translate-y-0.5 hover:shadow-lg"
+            className="ml-1 transition-all font-bold text-sm px-4 py-2 rounded-full bg-stone-900 text-white shadow-md hover:-translate-y-0.5 hover:shadow-lg"
           >
             Get a Quote
           </Link>
+
+          {/* Cart Icon Trigger */}
+          <button
+            onClick={openCart}
+            className="relative p-2 ml-1 text-stone-700 hover:text-stone-950 hover:bg-stone-100/80 rounded-full transition-all"
+            aria-label="Open Cart"
+          >
+            <ShoppingBag size={20} />
+            {totalCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[#4f6b43] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200">
+                {totalCount}
+              </span>
+            )}
+          </button>
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          className="sm:hidden p-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors"
-          onClick={() => setMobileOpen(o => !o)}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        {/* Mobile items: Cart + Hamburger */}
+        <div className="sm:hidden flex items-center gap-1">
+          <button
+            onClick={openCart}
+            className="relative p-2 text-stone-700 hover:text-stone-950 rounded-full"
+            aria-label="Open Cart"
+          >
+            <ShoppingBag size={20} />
+            {totalCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[#4f6b43] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
+                {totalCount}
+              </span>
+            )}
+          </button>
+          <button
+            className="p-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors"
+            onClick={() => setMobileOpen(o => !o)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile dropdown */}

@@ -5,7 +5,9 @@ import Navbar from '@/components/Navbar';
 import ContactFooter from '@/components/ContactFooter';
 import InteractiveBackground from '@/components/InteractiveBackground';
 import ScrollProgress from '@/components/ScrollProgress';
-
+import { CartProvider } from '@/context/CartContext';
+import CartDrawer from '@/components/CartDrawer';
+import WakeUpBackend from '@/components/WakeUpBackend';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,14 +24,18 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <body className={`${inter.className} min-h-screen bg-[#e8e4db] text-stone-900 flex flex-col relative antialiased`}>
-        <ScrollProgress />
-        <InteractiveBackground />
-        <Navbar />
-        {/* Padding accounts for floating navbar height */}
-        <main className="flex-1 flex flex-col pt-24">
-          {children}
-        </main>
-        <ContactFooter />
+        <WakeUpBackend />
+        <CartProvider>
+          <ScrollProgress />
+          <InteractiveBackground />
+          <Navbar />
+          {/* Padding accounts for floating navbar height */}
+          <main className="flex-1 flex flex-col pt-24">
+            {children}
+          </main>
+          <ContactFooter />
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   );

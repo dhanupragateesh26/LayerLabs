@@ -10,9 +10,8 @@ export default function WakeUpBackend() {
         const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
         // Hit the health check endpoint which is fast and lightweight
         await fetch(`${url}/health`, { method: 'GET', cache: 'no-store' });
-      } catch (error) {
+      } catch {
         // We silently ignore errors as the backend might still be waking up
-        // console.error('Wake-up request failed:', error);
       }
     };
 
