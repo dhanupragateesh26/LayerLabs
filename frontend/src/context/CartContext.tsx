@@ -45,13 +45,27 @@ export interface CustomPrintCartItem {
 
 export type CartItem = CatalogCartItem | CustomPrintCartItem;
 
+export type CatalogCartInput = Omit<Partial<CatalogCartItem>, 'price'> & {
+  productId?: string;
+  id?: string;
+  price?: string | number;
+  numericPrice?: number;
+};
+
+export interface CustomPrintCartInput extends Partial<CustomPrintCartItem> {
+  fileName?: string;
+  file?: File;
+}
+
+export type AddToCartInput = CatalogCartInput | CustomPrintCartInput;
+
 interface CartContextType {
   items: CartItem[];
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
-  addToCart: (item: any, type?: 'catalog' | 'custom_print') => void;
+  addToCart: (item: AddToCartInput, type?: 'catalog' | 'custom_print') => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -102,11 +116,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const serializable = items.map((item) => {
         if (item.type === 'custom_print') {
-          const { file, ...rest } = item;
-          return rest;
+          const copy = { ...item };
+          delete (copy as { file?: File }).file;
+          return copy;
         } else if (item.type === 'catalog') {
-          const { imageFile, ...rest } = item;
-          return rest;
+          const copy = { ...item };
+          delete (copy as { imageFile?: File }).imageFile;
+          return copy;
         }
         return item;
       });
@@ -121,32 +137,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const toggleCart = () => setIsOpen((prev) => !prev);
 
   const addToCart = (
-    itemData: any,
-    itemType: 'catalog' | 'custom_print' = itemData.type || (itemData.fileName ? 'custom_print' : 'catalog')
+    itemData: AddToCartInput,
+    itemType: 'catalog' | 'custom_print' = ('type' in itemData && itemData.type)
+      ? itemData.type
+      : ('fileName' in itemData && itemData.fileName ? 'custom_print' : 'catalog')
   ) => {
     const id = `${itemType}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
     if (itemType === 'catalog') {
-      const numericPrice = typeof itemData.price === 'string'
-        ? parseInt(itemData.price.replace(/[^0-9]/g, ''), 10) || 0
-        : Number(itemData.numericPrice ?? itemData.price) || 0;
+      const catalogData = itemData as CatalogCartInput;
+      const rawPrice = catalogData.price;
+      const numericPrice = typeof rawPrice === 'string'
+        ? parseInt(rawPrice.replace(/[^0-9]/g, ''), 10) || 0
+        : Number(catalogData.numericPrice ?? rawPrice) || 0;
 
-      if (itemData.imageFile) {
-        fileStore.set(id, { imageFile: itemData.imageFile });
+      if (catalogData.imageFile) {
+        fileStore.set(id, { imageFile: catalogData.imageFile });
       }
 
       const newItem: CatalogCartItem = {
         id,
         type: 'catalog',
-        productId: itemData.productId || itemData.id || id,
-        title: itemData.title || 'Product',
-        price: itemData.price || `₹${numericPrice}`,
+        productId: catalogData.productId || catalogData.id || id,
+        title: catalogData.title || 'Product',
+        price: catalogData.price ? String(catalogData.price) : `₹${numericPrice}`,
         numericPrice,
-        img: itemData.img || '/products/dragon-keychain.jpg',
-        badges: itemData.badges || [],
-        quantity: itemData.quantity || 1,
-        options: itemData.options,
-        imageFile: itemData.imageFile,
+        img: catalogData.img || '/products/dragon-keychain.jpg',
+        badges: catalogData.badges || [],
+        quantity: catalogData.quantity || 1,
+        options: catalogData.options,
+        imageFile: catalogData.imageFile,
       };
 
       setItems((prev) => {
@@ -170,24 +190,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return [...prev, newItem];
       });
     } else {
-      if (itemData.file) {
-        fileStore.set(id, { file: itemData.file });
+      const customData = itemData as CustomPrintCartInput;
+      if (customData.file) {
+        fileStore.set(id, { file: customData.file });
       }
 
       const newItem: CustomPrintCartItem = {
         id,
         type: 'custom_print',
-        title: itemData.title || `Custom Print (${itemData.fileName})`,
-        fileName: itemData.fileName || (itemData.file ? itemData.file.name : 'model.stl'),
-        file: itemData.file,
-        material: itemData.material || 'PLA',
-        color: itemData.color || 'White',
-        infillDensity: itemData.infillDensity || 'Default',
-        infillPattern: itemData.infillPattern || 'Default',
-        quantity: itemData.quantity || 1,
-        volumeMm3: itemData.volumeMm3 || 0,
-        comments: itemData.comments || '',
-        priceEstimate: itemData.priceEstimate,
+        title: customData.title || `Custom Print (${customData.fileName})`,
+        fileName: customData.fileName || (customData.file ? customData.file.name : 'model.stl'),
+        file: customData.file,
+        material: customData.material || 'PLA',
+        color: customData.color || 'White',
+        infillDensity: customData.infillDensity || 'Default',
+        infillPattern: customData.infillPattern || 'Default',
+        quantity: customData.quantity || 1,
+        volumeMm3: customData.volumeMm3 || 0,
+        comments: customData.comments || '',
+        priceEstimate: customData.priceEstimate,
       };
 
       setItems((prev) => [...prev, newItem]);

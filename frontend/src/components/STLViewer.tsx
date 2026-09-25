@@ -30,6 +30,15 @@ export default function STLViewer({ file, onVolumeCalculated }: STLViewerProps) 
   const [modelColor, setModelColor] = useState(COLOR_OPTIONS[0].value);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [prevFile, setPrevFile] = useState<File | null>(null);
+
+  // Sync loading and error states during render when file changes
+  if (file !== prevFile) {
+    setPrevFile(file);
+    setIsLoading(!!file);
+    setError(null);
+  }
+
   // ── Update material color without reloading the STL ──────────────────────
   useEffect(() => {
     colorRef.current = modelColor;
@@ -44,13 +53,11 @@ export default function STLViewer({ file, onVolumeCalculated }: STLViewerProps) 
 
   // ── Three.js scene — only re-runs when file changes ──────────────────────
   useEffect(() => {
-    if (!mountRef.current || !file) return;
+    const currentMount = mountRef.current;
+    if (!currentMount || !file) return;
 
-    setError(null);
-    setIsLoading(true);
-
-    const width = mountRef.current.clientWidth;
-    const height = mountRef.current.clientHeight;
+    const width = currentMount.clientWidth;
+    const height = currentMount.clientHeight;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x85847F); // warm light background matches site theme
@@ -62,7 +69,7 @@ export default function STLViewer({ file, onVolumeCalculated }: STLViewerProps) 
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
-    mountRef.current.appendChild(renderer.domElement);
+    currentMount.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -145,9 +152,9 @@ export default function STLViewer({ file, onVolumeCalculated }: STLViewerProps) 
     animate();
 
     const handleResize = () => {
-      if (!mountRef.current) return;
-      const w = mountRef.current.clientWidth;
-      const h = mountRef.current.clientHeight;
+      if (!currentMount) return;
+      const w = currentMount.clientWidth;
+      const h = currentMount.clientHeight;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -157,8 +164,8 @@ export default function STLViewer({ file, onVolumeCalculated }: STLViewerProps) 
     return () => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
-      if (mountRef.current && renderer.domElement.parentNode === mountRef.current) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (currentMount && renderer.domElement.parentNode === currentMount) {
+        currentMount.removeChild(renderer.domElement);
       }
       mesh?.geometry.dispose();
       (mesh?.material as THREE.Material)?.dispose();

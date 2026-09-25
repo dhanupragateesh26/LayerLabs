@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Product, ProductSize, ProductDesign } from '@/data/products';
 import { useCart } from '@/context/CartContext';
@@ -11,15 +11,11 @@ import {
   Check,
   Upload,
   Image as ImageIcon,
-  Sparkles,
   Layers,
   Ruler,
   Palette,
   ShoppingBag,
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  Eye
+  AlertCircle
 } from 'lucide-react';
 
 interface ProductCustomizeModalProps {
@@ -50,55 +46,45 @@ export default function ProductCustomizeModal({
   const [imageError, setImageError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize state when product changes
-  useEffect(() => {
-    if (product) {
-      const defaultSize = product.sizes.find((s) => s.isDefault) || product.sizes[0];
-      setSelectedSize(defaultSize);
+  // Track previous product ID to reset/initialize state on product change without effect
+  const [prevProductId, setPrevProductId] = useState<string | null>(null);
 
-      let initialImg = product.img;
+  if (product && product.id !== prevProductId) {
+    setPrevProductId(product.id);
+    const defaultSize = product.sizes.find((s) => s.isDefault) || product.sizes[0];
+    setSelectedSize(defaultSize);
 
-      if (product.designs && product.designs.length > 0) {
-        const initialDesign = product.designs[0];
-        setSelectedDesign(initialDesign);
-        if (initialDesign.previewImg) {
-          initialImg = initialDesign.previewImg;
-        }
-      } else {
-        setSelectedDesign(null);
+    let initialImg = product.img;
+
+    if (product.designs && product.designs.length > 0) {
+      const initialDesign = product.designs[0];
+      setSelectedDesign(initialDesign);
+      if (initialDesign.previewImg) {
+        initialImg = initialDesign.previewImg;
       }
-
-      if (product.colors && product.colors.length > 0) {
-        const initialColor = product.colors[0];
-        setSelectedColor(initialColor.name);
-        if (initialColor.previewImg && (!product.designs || product.designs.length === 0)) {
-          initialImg = initialColor.previewImg;
-        }
-      } else {
-        setSelectedColor('');
-      }
-
-      setActiveImage(initialImg);
-      setQuantity(1);
-      setCustomNote('');
-      setUploadedImage(null);
-      setImagePreview(null);
-      setImageError('');
+    } else {
+      setSelectedDesign(null);
     }
-  }, [product]);
+
+    if (product.colors && product.colors.length > 0) {
+      const initialColor = product.colors[0];
+      setSelectedColor(initialColor.name);
+      if (initialColor.previewImg && (!product.designs || product.designs.length === 0)) {
+        initialImg = initialColor.previewImg;
+      }
+    } else {
+      setSelectedColor('');
+    }
+
+    setActiveImage(initialImg);
+    setQuantity(1);
+    setCustomNote('');
+    setUploadedImage(null);
+    setImagePreview(null);
+    setImageError('');
+  }
 
   if (!product) return null;
-
-  // Aggregate all unique gallery images
-  const allImages: string[] = Array.from(
-    new Set([
-      product.img,
-      ...(product.images || []),
-      ...(product.designs?.map((d) => d.previewImg).filter(Boolean) as string[] || []),
-      ...(product.colors?.map((c) => c.previewImg).filter(Boolean) as string[] || []),
-      ...(imagePreview ? [imagePreview] : []),
-    ])
-  );
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setImageError('');
@@ -372,7 +358,7 @@ export default function ProductCustomizeModal({
                           onClick={() => handleSelectColor(color)}
                           className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl border text-xs font-semibold transition-all cursor-pointer ${
                             isSelected
-                              ? 'bg-stone-900 text-white border-stone-900 shadow-sm scale-102'
+                              ? 'bg-stone-900 text-white border-stone-900 shadow-sm scale-[1.02]'
                               : 'bg-white border-stone-200 hover:border-stone-300 text-stone-800'
                           }`}
                         >

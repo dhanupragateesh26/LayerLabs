@@ -26,7 +26,7 @@ export default function Navbar() {
 
   // Highlight nav items based on visible section via IntersectionObserver
   useEffect(() => {
-    if (pathname !== '/') { setActiveAnchor(null); return; }
+    if (pathname !== '/') return;
     const anchors = NAV_LINKS.map(l => l.anchor).filter(Boolean) as string[];
     const observers: IntersectionObserver[] = [];
 
@@ -41,7 +41,10 @@ export default function Navbar() {
       observers.push(obs);
     });
 
-    return () => observers.forEach(o => o.disconnect());
+    return () => {
+      observers.forEach(o => o.disconnect());
+      setActiveAnchor(null);
+    };
   }, [pathname]);
 
   const isActive = (link: typeof NAV_LINKS[0]) => {

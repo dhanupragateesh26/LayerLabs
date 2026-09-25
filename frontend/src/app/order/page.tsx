@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, ChangeEvent, FormEvent } from 'react';
-import { UploadCloud, FileType2, CheckCircle, AlertCircle, ShoppingBag, Plus } from 'lucide-react';
+import { UploadCloud, FileType2, CheckCircle, AlertCircle, ShoppingBag } from 'lucide-react';
 import STLViewer from '@/components/STLViewer';
 import { useCart } from '@/context/CartContext';
 
@@ -136,16 +136,16 @@ export default function OrderPage() {
       data.append(key, String(value));
     });
     data.append('stlFile', file, fileName);
+    if (volumeMm3 > 0) {
+      data.append('volumeMm3', String(volumeMm3));
+    }
 
     try {
       const progressInterval = setInterval(() => {
         setUploadProgress((prev) => (prev < 90 ? prev + 10 : prev));
       }, 200);
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (!apiUrl) {
-        throw new Error('API URL not configured. Please set NEXT_PUBLIC_API_URL in your environment.');
-      }
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
       const res = await fetch(`${apiUrl}/api/orders`, {
         method: 'POST',
@@ -173,10 +173,11 @@ export default function OrderPage() {
           setSubmitError(`Server responded with ${res.status}: ${res.statusText}`);
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setSubmitError(err.message === 'API URL not configured. Please set NEXT_PUBLIC_API_URL in your environment.'
-        ? err.message
+      const errMsg = err instanceof Error ? err.message : '';
+      setSubmitError(errMsg && errMsg.includes('API URL')
+        ? errMsg
         : 'Cannot connect to the backend server. Please check your internet connection or try again later.');
     } finally {
       setIsUploading(false);

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
-import { ChevronRight, ChevronLeft, ArrowRight, Printer, PenTool, Zap, CheckCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ArrowRight } from 'lucide-react';
 import { products } from '../data/products';
 import ProductCustomizeModal from '@/components/ProductCustomizeModal';
 
@@ -487,7 +487,7 @@ function MaterialsSection() {
             <tbody className="divide-y divide-stone-100">
               <tr className="hover:bg-stone-50/50 transition-colors">
                 <td className="py-6 font-semibold text-stone-700 pl-4">Strength</td>
-                <td className="py-"><div className="flex justify-center"><DotRating rating={3} /></div></td>
+                <td className="py-6"><div className="flex justify-center"><DotRating rating={3} /></div></td>
                 <td className="py-6"><div className="flex justify-center"><DotRating rating={4} /></div></td>
                 <td className="py-6"><div className="flex justify-center"><DotRating rating={1} /></div></td>
               </tr>

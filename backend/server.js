@@ -22,8 +22,13 @@ const allowedOrigins = rawOrigins.split(',').map((o) => o.trim());
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) callback(null, true);
-      else callback(new Error(`CORS: Origin ${origin} not allowed`));
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      // Allow localhost and 127.0.0.1 on any port during local development
+      if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return callback(null, true);
+      // Allow Vercel preview and deployment domains
+      if (/^https:\/\/.*\.vercel\.app$/.test(origin)) return callback(null, true);
+      return callback(null, false);
     },
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -274,7 +279,13 @@ function startCleanupJob() {
 
 // ── Health Check ──────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() });
+  const isDbConnected = mongoose.connection.readyState === 1;
+  res.json({
+    status: isDbConnected ? 'ok' : 'degraded',
+    database: isDbConnected ? 'connected' : 'disconnected',
+    storage: gfsBucket ? 'ready' : 'unavailable',
+    uptime: process.uptime(),
+  });
 });
 
 // ── Routes ────────────────────────────────────────────────────────────────────
@@ -282,6 +293,12 @@ app.get('/health', (_req, res) => {
 /** POST /api/cart-orders — Unified multi-item cart submission with STLs & custom photos */
 app.post('/api/cart-orders', upload.any(), async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        error: 'Database service is temporarily unavailable. Please try again in a few moments.',
+      });
+    }
+
     const { name, email, phone, address, comments, itemsJson } = req.body;
 
     if (!name || !email || !phone || !address) {
@@ -382,9 +399,15 @@ app.post('/api/cart-orders', upload.any(), async (req, res) => {
 /** POST /api/orders — Legacy Single STL order */
 app.post('/api/orders', upload.single('stlFile'), async (req, res) => {
   try {
-    const { name, email, phone, address, material, color, infillDensity, infillPattern, quantity, comments } = req.body;
+    const { name, email, phone, address, material, color, infillDensity, infillPattern, quantity, comments, volumeMm3 } = req.body;
 
     if (!req.file) return res.status(400).json({ error: 'STL file is required' });
+
+    if (mongoose.connection.readyState !== 1 || !gfsBucket) {
+      return res.status(503).json({
+        error: 'Database storage service is temporarily unavailable. Please try again in a few moments.',
+      });
+    }
 
     const gridFsId = await uploadToGridFS(req.file.buffer, req.file.originalname, 'application/octet-stream');
 
@@ -399,6 +422,7 @@ app.post('/api/orders', upload.single('stlFile'), async (req, res) => {
       infillPattern,
       quantity: Number(quantity) || 1,
       comments: comments || '',
+      volumeMm3: Number(volumeMm3) || null,
       stlFileName: req.file.originalname,
       stlFileId: gridFsId,
       orderType: 'single',
@@ -445,6 +469,10 @@ app.get('/api/files/:fileId', async (req, res) => {
 
     if (!gfsBucket) return res.status(503).json({ error: 'Storage service currently unavailable.' });
 
+    if (!mongoose.Types.ObjectId.isValid(req.params.fileId)) {
+      return res.status(400).json({ error: 'Invalid file ID format.' });
+    }
+
     const objectId = new mongoose.Types.ObjectId(req.params.fileId);
     const files = await gfsBucket.find({ _id: objectId }).toArray();
 
@@ -467,6 +495,10 @@ app.get('/api/files/:fileId', async (req, res) => {
 app.get('/api/orders/:id/file', async (req, res) => {
   try {
     res.setHeader('Access-Control-Allow-Origin', '*');
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid order ID format.' });
+    }
 
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'Order not found' });

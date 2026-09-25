@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCart, CartItem } from '@/context/CartContext';
+import { useCart } from '@/context/CartContext';
 import {
   ShoppingBag,
   X,
@@ -16,7 +16,6 @@ import {
   CheckCircle,
   AlertCircle,
   FileCode2,
-  Sparkles,
   Loader2,
   Truck,
   Image as ImageIcon,
@@ -62,6 +61,13 @@ export default function CartDrawer() {
 
     if (items.length === 0) {
       setErrorMessage('Your cart is empty.');
+      return;
+    }
+
+    // Check if any custom prints are missing files (e.g. after browser refresh)
+    const missingStl = items.find(i => i.type === 'custom_print' && !i.file);
+    if (missingStl && missingStl.type === 'custom_print') {
+      setErrorMessage(`The STL file for "${missingStl.fileName}" needs to be re-uploaded because the page was refreshed. Please re-add it from the Order page.`);
       return;
     }
 
@@ -148,10 +154,11 @@ export default function CartDrawer() {
         const errJson = await res.json().catch(() => ({}));
         setErrorMessage(errJson.error || `Submission failed with status ${res.status}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
+      const errMsg = err instanceof Error ? err.message : '';
       setErrorMessage(
-        err.message || 'Cannot connect to server. Please verify backend status and try again.'
+        errMsg || 'Cannot connect to server. Please verify backend status and try again.'
       );
     } finally {
       setIsSubmitting(false);
@@ -537,7 +544,7 @@ export default function CartDrawer() {
                   </div>
                   <h3 className="text-xl font-bold text-stone-900 mb-2">Order Received!</h3>
                   <p className="text-xs text-stone-500 mb-4 max-w-xs">
-                    Thank you! We've received your order request and custom specifications. We will review your models and send an email confirmation shortly.
+                    Thank you! We&apos;ve received your order request and custom specifications. We will review your models and send an email confirmation shortly.
                   </p>
 
                   <div className="p-4 bg-white border border-stone-200 rounded-xl w-full max-w-xs mb-6 text-left text-xs space-y-1">
