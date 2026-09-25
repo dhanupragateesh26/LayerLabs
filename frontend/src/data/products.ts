@@ -143,7 +143,7 @@ export const products: Product[] = [
     basePrice: 350,
     img: '/products/michael-jackson-figurine.jpg',
     images: ['/products/michael-jackson-figurine.jpg', '/products/michaeljackson.png'],
-    badges: ['Figurine', 'Iconic', 'Collectable', 'High Detail'],
+    badges: ['PLA', 'Figurine', 'Iconic', 'Collectable', 'High Detail'],
     desc: 'A highly detailed collectible figurine of the King of Pop captured in his world-renowned iconic dance pose.',
     customizationType: 'standard',
     sizes: [
@@ -284,3 +284,4 @@ export const products: Product[] = [
     ],
   },
 ];
+
